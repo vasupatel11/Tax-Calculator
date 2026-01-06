@@ -84,20 +84,24 @@ const LIFE_EXPECTANCY_TABLE = {
     }
 };
 
+// Global variable to store chart instance
+let comparisonChart = null;
+
+// Global variables to store projection data
+let traditionalProjections = [];
+let method453Projections = [];
+
 // Get life expectancy based on age and gender
 function getLifeExpectancy(age, gender) {
     const table = LIFE_EXPECTANCY_TABLE[gender];
     if (!table) return 0;
 
-    // Find the closest age in the table
     const ages = Object.keys(table).map(Number).sort((a, b) => a - b);
 
-    // If exact age exists
     if (table[age] !== undefined) {
         return table[age];
     }
 
-    // Interpolate between ages
     for (let i = 0; i < ages.length - 1; i++) {
         if (age >= ages[i] && age < ages[i + 1]) {
             const lowerAge = ages[i];
@@ -105,13 +109,11 @@ function getLifeExpectancy(age, gender) {
             const lowerLE = table[lowerAge];
             const upperLE = table[upperAge];
 
-            // Linear interpolation
             const ratio = (age - lowerAge) / (upperAge - lowerAge);
             return lowerLE - (lowerLE - upperLE) * ratio;
         }
     }
 
-    // If age is beyond table, use the last value
     return table[ages[ages.length - 1]];
 }
 
@@ -142,11 +144,9 @@ function calculateFederalTax(income, filingStatus) {
 // Calculate capital gains tax
 function calculateCapitalGainsTax(capitalGain, income, filingStatus, isShortTerm) {
     if (isShortTerm) {
-        // Short-term capital gains are taxed as ordinary income
         return calculateFederalTax(income + capitalGain, filingStatus) - calculateFederalTax(income, filingStatus);
     }
 
-    // Long-term capital gains
     const brackets = CAPITAL_GAINS_BRACKETS_2025[filingStatus];
     let tax = 0;
     let remainingGain = capitalGain;
@@ -178,17 +178,10 @@ function calculateNIIT(capitalGain, income, filingStatus) {
         return 0;
     }
 
-    // NIIT applies to the lesser of net investment income or the amount by which MAGI exceeds threshold
     const excessIncome = totalIncome - threshold;
     const taxableAmount = Math.min(capitalGain, excessIncome);
 
-    return taxableAmount * 0.038; // 3.8% NIIT
-}
-
-// Calculate number of days between two dates
-function daysBetweenDates(date1, date2) {
-    const oneDay = 24 * 60 * 60 * 1000;
-    return Math.round(Math.abs((date1 - date2) / oneDay));
+    return taxableAmount * 0.038;
 }
 
 // Format currency
@@ -201,15 +194,253 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-// Calculate future value with annual withdrawals
-function calculateFutureValue(principal, annualRate, years, annualWithdrawal) {
-    let value = principal;
-    for (let i = 0; i < years; i++) {
-        value = value * (1 + annualRate) - annualWithdrawal;
-        if (value < 0) value = 0;
+// Format compact currency (for chart labels)
+function formatCompactCurrency(amount) {
+    if (amount >= 1000000) {
+        return '$' + (amount / 1000000).toFixed(1) + 'M';
+    } else if (amount >= 1000) {
+        return '$' + (amount / 1000).toFixed(0) + 'K';
     }
-    return value;
+    return formatCurrency(amount);
 }
+
+// Generate year-by-year projections for Traditional scenario
+function generateTraditionalProjections(startAge, yearsRemaining, startingAsset, rateOfReturn, lifestyleWithdrawal, filingStatus, stateRate) {
+    const projections = [];
+    let currentAsset = startingAsset;
+
+    for (let year = 0; year < yearsRemaining; year++) {
+        const age = startAge + year;
+        const assetBeginning = currentAsset;
+        const growth = assetBeginning * rateOfReturn;
+
+        // Tax is calculated on the withdrawal amount only (as if it's their only income)
+        const withdrawalTax = calculateFederalTax(lifestyleWithdrawal, filingStatus) + (lifestyleWithdrawal * stateRate);
+
+        const netEnding = assetBeginning + growth - lifestyleWithdrawal - withdrawalTax;
+
+        projections.push({
+            age: age,
+            assetBeginning: assetBeginning,
+            growth: growth,
+            lifestyleWithdrawal: lifestyleWithdrawal,
+            tax: withdrawalTax,
+            netEnding: netEnding > 0 ? netEnding : 0
+        });
+
+        currentAsset = netEnding > 0 ? netEnding : 0;
+
+        if (currentAsset <= 0) break;
+    }
+
+    return projections;
+}
+
+// Generate year-by-year projections for 453 scenario
+function generate453Projections(startAge, yearsRemaining, startingAsset, rateOfReturn, lifestyleWithdrawal, filingStatus, stateRate) {
+    const projections = [];
+    let currentAsset = startingAsset;
+    const complianceFeeRate = 0.015; // 1.5%
+
+    for (let year = 0; year < yearsRemaining; year++) {
+        const age = startAge + year;
+        const assetBeginning = currentAsset;
+        const growth = assetBeginning * rateOfReturn;
+        const complianceFee = assetBeginning * complianceFeeRate;
+
+        // Tax is calculated on the withdrawal amount only
+        const withdrawalTax = calculateFederalTax(lifestyleWithdrawal, filingStatus) + (lifestyleWithdrawal * stateRate);
+
+        const netEnding = assetBeginning + growth - complianceFee - lifestyleWithdrawal - withdrawalTax;
+
+        projections.push({
+            age: age,
+            assetBeginning: assetBeginning,
+            growth: growth,
+            complianceFee: complianceFee,
+            lifestyleWithdrawal: lifestyleWithdrawal,
+            tax: withdrawalTax,
+            netEnding: netEnding > 0 ? netEnding : 0
+        });
+
+        currentAsset = netEnding > 0 ? netEnding : 0;
+
+        if (currentAsset <= 0) break;
+    }
+
+    return projections;
+}
+
+// Render projection table
+function renderProjectionTable(projections, scenario) {
+    const tbody = document.getElementById('projectionTableBody');
+    tbody.innerHTML = '';
+
+    projections.forEach(row => {
+        const tr = document.createElement('tr');
+
+        if (scenario === '453') {
+            tr.innerHTML = `
+                <td>${row.age}</td>
+                <td>${formatCurrency(row.assetBeginning)}</td>
+                <td>${formatCurrency(row.growth)}</td>
+                <td class="compliance-col">${formatCurrency(row.complianceFee)}</td>
+                <td>${formatCurrency(row.lifestyleWithdrawal)}</td>
+                <td>${formatCurrency(row.tax)}</td>
+                <td><strong>${formatCurrency(row.netEnding)}</strong></td>
+            `;
+        } else {
+            tr.innerHTML = `
+                <td>${row.age}</td>
+                <td>${formatCurrency(row.assetBeginning)}</td>
+                <td>${formatCurrency(row.growth)}</td>
+                <td class="compliance-col" style="display: none;"></td>
+                <td>${formatCurrency(row.lifestyleWithdrawal)}</td>
+                <td>${formatCurrency(row.tax)}</td>
+                <td><strong>${formatCurrency(row.netEnding)}</strong></td>
+            `;
+        }
+
+        tbody.appendChild(tr);
+    });
+}
+
+// Create comparison chart
+function createComparisonChart(traditionalData, method453Data, startAge) {
+    const ctx = document.getElementById('comparisonChart');
+
+    if (comparisonChart) {
+        comparisonChart.destroy();
+    }
+
+    const labels = traditionalData.map(d => d.age);
+    const traditionalValues = traditionalData.map(d => d.netEnding);
+    const method453Values = method453Data.map(d => d.netEnding);
+
+    comparisonChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Net Ending - Traditional',
+                    data: traditionalValues,
+                    borderColor: '#c44d4d',
+                    backgroundColor: 'rgba(196, 77, 77, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                },
+                {
+                    label: 'Net Ending - Carmel Estate 453',
+                    data: method453Values,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 15,
+                    titleFont: {
+                        size: 16
+                    },
+                    bodyFont: {
+                        size: 14
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Age',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Net Ending Value',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return formatCompactCurrency(value);
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Toggle scenario buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButtons = document.querySelectorAll('.toggle-btn');
+
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            toggleButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            const scenario = this.getAttribute('data-scenario');
+            const complianceCols = document.querySelectorAll('.compliance-col');
+
+            if (scenario === '453') {
+                complianceCols.forEach(col => col.style.display = '');
+                renderProjectionTable(method453Projections, '453');
+            } else {
+                complianceCols.forEach(col => col.style.display = 'none');
+                renderProjectionTable(traditionalProjections, 'traditional');
+            }
+        });
+    });
+});
 
 // Main form submission handler
 document.getElementById('taxCalculatorForm').addEventListener('submit', function(e) {
@@ -218,7 +449,7 @@ document.getElementById('taxCalculatorForm').addEventListener('submit', function
     // Get form values
     const assetValue = parseFloat(document.getElementById('assetValue').value);
     const costBasis = parseFloat(document.getElementById('costBasis').value);
-    const purchaseDate = new Date(document.getElementById('purchaseDate').value);
+    const isShortTerm = document.querySelector('input[name="shortTermGain"]:checked').value === 'yes';
     const age = parseInt(document.getElementById('age').value);
     const gender = document.getElementById('gender').value;
     const filingStatus = document.getElementById('filingStatus').value;
@@ -230,51 +461,40 @@ document.getElementById('taxCalculatorForm').addEventListener('submit', function
     // Calculate capital gain
     const capitalGain = assetValue - costBasis;
 
-    // Calculate holding period
-    const today = new Date();
-    const holdingDays = daysBetweenDates(today, purchaseDate);
-    const isShortTerm = holdingDays < 365;
-
     // Get life expectancy
     const lifeExpectancy = getLifeExpectancy(age, gender);
     const yearsRemaining = Math.round(lifeExpectancy);
 
-    // Calculate taxes - Traditional Method
-    const federalIncomeTax = calculateFederalTax(annualIncome, filingStatus);
+    // Calculate upfront taxes for Traditional Method
     const capitalGainsTax = calculateCapitalGainsTax(capitalGain, annualIncome, filingStatus, isShortTerm);
     const niitTax = calculateNIIT(capitalGain, annualIncome, filingStatus);
     const stateTax = capitalGain * stateRate;
+    const federalIncomeTax = calculateFederalTax(annualIncome, filingStatus);
 
-    const totalTraditionalTax = capitalGainsTax + niitTax + stateTax;
-    const afterTaxAmount = assetValue - totalTraditionalTax;
+    const totalUpfrontTax = capitalGainsTax + niitTax + stateTax;
+    const afterTaxAmount = assetValue - totalUpfrontTax;
 
-    // 453 Structure Calculations
-    // In a 453 structure, the gain is spread over the life expectancy
-    const annualGainRecognition = capitalGain / yearsRemaining;
-    const annualTaxOn453 = (calculateCapitalGainsTax(annualGainRecognition, annualIncome, filingStatus, false) +
-                            calculateNIIT(annualGainRecognition, annualIncome, filingStatus) +
-                            (annualGainRecognition * stateRate));
+    // Generate projections
+    traditionalProjections = generateTraditionalProjections(age, yearsRemaining, afterTaxAmount, rateOfReturn, annualWithdrawal, filingStatus, stateRate);
+    method453Projections = generate453Projections(age, yearsRemaining, assetValue, rateOfReturn, annualWithdrawal, filingStatus, stateRate);
 
-    const total453TaxOverLife = annualTaxOn453 * yearsRemaining;
-    const taxSavings = totalTraditionalTax - total453TaxOverLife;
+    const traditionalFinalValue = traditionalProjections.length > 0 ? traditionalProjections[traditionalProjections.length - 1].netEnding : 0;
+    const method453FinalValue = method453Projections.length > 0 ? method453Projections[method453Projections.length - 1].netEnding : 0;
+    const finalAdvantage = method453FinalValue - traditionalFinalValue;
 
-    // Wealth projections
-    const traditionalStart = afterTaxAmount;
-    const traditional10y = calculateFutureValue(traditionalStart, rateOfReturn, 10, annualWithdrawal);
-    const traditional20y = calculateFutureValue(traditionalStart, rateOfReturn, 20, annualWithdrawal);
-    const traditionalLife = calculateFutureValue(traditionalStart, rateOfReturn, yearsRemaining, annualWithdrawal);
+    // Calculate total taxes paid over lifetime
+    const traditionalTotalTax = totalUpfrontTax + traditionalProjections.reduce((sum, p) => sum + p.tax, 0);
+    const method453TotalTax = method453Projections.reduce((sum, p) => sum + p.tax, 0);
+    const taxSavings = traditionalTotalTax - method453TotalTax;
 
-    // 453 structure - full asset value minus annual tax payments
-    const method453Start = assetValue;
-    const method453_10y = calculateFutureValue(method453Start, rateOfReturn, 10, annualWithdrawal + annualTaxOn453);
-    const method453_20y = calculateFutureValue(method453Start, rateOfReturn, 20, annualWithdrawal + annualTaxOn453);
-    const method453_life = calculateFutureValue(method453Start, rateOfReturn, yearsRemaining, annualWithdrawal + annualTaxOn453);
+    // Update summary stats
+    document.getElementById('summary-upfront-tax').textContent = formatCurrency(totalUpfrontTax);
+    document.getElementById('summary-453-savings').textContent = formatCurrency(taxSavings);
+    document.getElementById('summary-final-advantage').textContent = formatCurrency(finalAdvantage);
 
-    const totalAdvantage = method453_life - traditionalLife;
-
-    // Display results
+    // Display basic results
     document.getElementById('result-capital-gain').textContent = formatCurrency(capitalGain);
-    document.getElementById('result-holding-period').textContent = `${holdingDays} days`;
+    document.getElementById('result-holding-period').textContent = isShortTerm ? 'Less than 1 year' : 'More than 1 year';
     document.getElementById('result-gain-type').textContent = isShortTerm ? 'Short-term' : 'Long-term';
 
     document.getElementById('result-age').textContent = age;
@@ -285,25 +505,29 @@ document.getElementById('taxCalculatorForm').addEventListener('submit', function
     document.getElementById('result-trad-state').textContent = formatCurrency(stateTax);
     document.getElementById('result-trad-niit').textContent = formatCurrency(niitTax);
     document.getElementById('result-trad-cap-gains').textContent = formatCurrency(capitalGainsTax);
-    document.getElementById('result-trad-total').textContent = formatCurrency(totalTraditionalTax);
+    document.getElementById('result-trad-total').textContent = formatCurrency(totalUpfrontTax);
     document.getElementById('result-trad-after-tax').textContent = formatCurrency(afterTaxAmount);
 
-    document.getElementById('result-453-deferral').textContent = formatCurrency(totalTraditionalTax);
-    document.getElementById('result-453-payment').textContent = formatCurrency(assetValue / yearsRemaining);
-    document.getElementById('result-453-annual-tax').textContent = formatCurrency(annualTaxOn453);
+    document.getElementById('result-453-deferral').textContent = formatCurrency(totalUpfrontTax);
+    document.getElementById('result-453-payment').textContent = 'N/A';
+    document.getElementById('result-453-annual-tax').textContent = formatCurrency(method453TotalTax / yearsRemaining);
     document.getElementById('result-453-savings').textContent = formatCurrency(taxSavings);
 
-    document.getElementById('comp-trad-start').textContent = formatCurrency(traditionalStart);
-    document.getElementById('comp-trad-10y').textContent = formatCurrency(traditional10y);
-    document.getElementById('comp-trad-20y').textContent = formatCurrency(traditional20y);
-    document.getElementById('comp-trad-life').textContent = formatCurrency(traditionalLife);
+    document.getElementById('comp-trad-start').textContent = formatCurrency(afterTaxAmount);
+    document.getElementById('comp-trad-10y').textContent = traditionalProjections.length >= 10 ? formatCurrency(traditionalProjections[9].netEnding) : 'N/A';
+    document.getElementById('comp-trad-20y').textContent = traditionalProjections.length >= 20 ? formatCurrency(traditionalProjections[19].netEnding) : 'N/A';
+    document.getElementById('comp-trad-life').textContent = formatCurrency(traditionalFinalValue);
 
-    document.getElementById('comp-453-start').textContent = formatCurrency(method453Start);
-    document.getElementById('comp-453-10y').textContent = formatCurrency(method453_10y);
-    document.getElementById('comp-453-20y').textContent = formatCurrency(method453_20y);
-    document.getElementById('comp-453-life').textContent = formatCurrency(method453_life);
+    document.getElementById('comp-453-start').textContent = formatCurrency(assetValue);
+    document.getElementById('comp-453-10y').textContent = method453Projections.length >= 10 ? formatCurrency(method453Projections[9].netEnding) : 'N/A';
+    document.getElementById('comp-453-20y').textContent = method453Projections.length >= 20 ? formatCurrency(method453Projections[19].netEnding) : 'N/A';
+    document.getElementById('comp-453-life').textContent = formatCurrency(method453FinalValue);
 
-    document.getElementById('total-advantage').textContent = formatCurrency(totalAdvantage);
+    document.getElementById('total-advantage').textContent = formatCurrency(finalAdvantage);
+
+    // Render table and chart
+    renderProjectionTable(traditionalProjections, 'traditional');
+    createComparisonChart(traditionalProjections, method453Projections, age);
 
     // Show results section
     document.getElementById('results').style.display = 'block';

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DST Trust - 453 Tax Savings Calculator</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -24,9 +25,17 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="purchaseDate">Asset Purchase Date</label>
-                        <input type="date" id="purchaseDate" name="purchaseDate" required>
-                        <small class="help-text">Assets held less than 1 year are subject to short-term capital gains</small>
+                        <label for="shortTermGain">Was this asset purchased within the last year?</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="shortTermGain" value="yes" required>
+                                <span>Yes (Short-term capital gains apply)</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="shortTermGain" value="no" checked required>
+                                <span>No (Long-term capital gains apply)</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -144,6 +153,21 @@
         <div id="results" class="results-section" style="display: none;">
             <h3>Tax Calculation Results</h3>
 
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="summary-upfront-tax">$0</div>
+                    <div class="stat-label">Traditional Upfront Tax</div>
+                </div>
+                <div class="stat-card highlight">
+                    <div class="stat-value" id="summary-453-savings">$0</div>
+                    <div class="stat-label">453 Tax Savings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="summary-final-advantage">$0</div>
+                    <div class="stat-label">Final Wealth Advantage</div>
+                </div>
+            </div>
+
             <div class="results-grid">
                 <div class="result-card">
                     <h4>Asset Details</h4>
@@ -226,26 +250,36 @@
                 </div>
             </div>
 
-            <div class="comparison-section">
-                <h4>Wealth Projection Comparison</h4>
-                <div class="comparison-card">
-                    <div class="comparison-item">
-                        <h5>Traditional Method</h5>
-                        <p>Starting Amount After Tax: <span id="comp-trad-start">$0</span></p>
-                        <p>Projected Value (10 years): <span id="comp-trad-10y">$0</span></p>
-                        <p>Projected Value (20 years): <span id="comp-trad-20y">$0</span></p>
-                        <p>Projected Value (At Life Expectancy): <span id="comp-trad-life">$0</span></p>
-                    </div>
-                    <div class="comparison-item highlight">
-                        <h5>453 Structure Method</h5>
-                        <p>Starting Amount: <span id="comp-453-start">$0</span></p>
-                        <p>Projected Value (10 years): <span id="comp-453-10y">$0</span></p>
-                        <p>Projected Value (20 years): <span id="comp-453-20y">$0</span></p>
-                        <p>Projected Value (At Life Expectancy): <span id="comp-453-life">$0</span></p>
-                    </div>
+            <div class="chart-section">
+                <h4>Visual Comparison: Traditional vs 453 Structure</h4>
+                <div class="chart-container">
+                    <canvas id="comparisonChart"></canvas>
                 </div>
-                <div class="advantage">
-                    <p><strong>Advantage with 453 Structure: <span id="total-advantage">$0</span></strong></p>
+            </div>
+
+            <div class="table-section">
+                <h4>Year-by-Year Detailed Projection</h4>
+                <div class="toggle-buttons">
+                    <button type="button" class="toggle-btn active" data-scenario="traditional">Traditional Scenario</button>
+                    <button type="button" class="toggle-btn" data-scenario="453">DST Trust - 453 Scenario</button>
+                </div>
+                <div class="table-wrapper">
+                    <table id="projectionTable" class="projection-table">
+                        <thead>
+                            <tr>
+                                <th>Age</th>
+                                <th>Asset (Beginning)</th>
+                                <th>Growth</th>
+                                <th class="compliance-col" style="display: none;">Compliance Support Fee (1.5%)</th>
+                                <th>Lifestyle Withdrawal</th>
+                                <th>Tax</th>
+                                <th>Net Ending</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectionTableBody">
+                            <!-- Table rows will be dynamically generated -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
