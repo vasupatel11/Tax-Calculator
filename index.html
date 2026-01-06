@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DST Trust - 453 Tax Savings Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DST Trust</h1>
+            <h2>453 Tax Savings Calculator</h2>
+        </header>
+
+        <div class="calculator-card">
+            <form id="taxCalculatorForm">
+                <div class="section">
+                    <h3>Asset Information</h3>
+
+                    <div class="form-group">
+                        <label for="assetValue">Asset Value ($)</label>
+                        <input type="number" id="assetValue" name="assetValue" required min="0" step="0.01" placeholder="Enter asset value">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="purchaseDate">Asset Purchase Date</label>
+                        <input type="date" id="purchaseDate" name="purchaseDate" required>
+                        <small class="help-text">Assets held less than 1 year are subject to short-term capital gains</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="costBasis">Cost Basis ($)</label>
+                        <input type="number" id="costBasis" name="costBasis" required min="0" step="0.01" placeholder="Original purchase price">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Personal Information</h3>
+
+                    <div class="form-group">
+                        <label for="age">Your Age</label>
+                        <input type="number" id="age" name="age" required min="1" max="120" placeholder="Enter your age">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                        <small class="help-text">Used for life expectancy calculation</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filingStatus">Tax Filing Status</label>
+                        <select id="filingStatus" name="filingStatus" required>
+                            <option value="">Select filing status</option>
+                            <option value="single">Single</option>
+                            <option value="married_joint">Married Filing Jointly</option>
+                            <option value="married_separate">Married Filing Separately</option>
+                            <option value="head_of_household">Head of Household</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="annualIncome">Annual Gross Income ($)</label>
+                        <input type="number" id="annualIncome" name="annualIncome" required min="0" step="0.01" placeholder="Total annual income">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="state">State of Residence</label>
+                        <select id="state" name="state" required>
+                            <option value="">Select state</option>
+                            <option value="0">No State Tax (AK, FL, NV, SD, TN, TX, WA, WY)</option>
+                            <option value="3.07">Alabama (3.07%)</option>
+                            <option value="5.5">Arizona (5.5%)</option>
+                            <option value="4.9">Arkansas (4.9%)</option>
+                            <option value="13.3">California (13.3%)</option>
+                            <option value="4.4">Colorado (4.4%)</option>
+                            <option value="6.99">Connecticut (6.99%)</option>
+                            <option value="6.6">Delaware (6.6%)</option>
+                            <option value="5.75">Georgia (5.75%)</option>
+                            <option value="11">Hawaii (11%)</option>
+                            <option value="5.8">Idaho (5.8%)</option>
+                            <option value="4.95">Illinois (4.95%)</option>
+                            <option value="3.23">Indiana (3.23%)</option>
+                            <option value="8.53">Iowa (8.53%)</option>
+                            <option value="5.7">Kansas (5.7%)</option>
+                            <option value="4.5">Kentucky (4.5%)</option>
+                            <option value="4.25">Louisiana (4.25%)</option>
+                            <option value="7.15">Maine (7.15%)</option>
+                            <option value="5.75">Maryland (5.75%)</option>
+                            <option value="9">Massachusetts (9%)</option>
+                            <option value="4.25">Michigan (4.25%)</option>
+                            <option value="9.85">Minnesota (9.85%)</option>
+                            <option value="5">Mississippi (5%)</option>
+                            <option value="4.95">Missouri (4.95%)</option>
+                            <option value="5.9">Montana (5.9%)</option>
+                            <option value="6.5">Nebraska (6.5%)</option>
+                            <option value="3">New Hampshire (3%)</option>
+                            <option value="10.75">New Jersey (10.75%)</option>
+                            <option value="5.9">New Mexico (5.9%)</option>
+                            <option value="10.9">New York (10.9%)</option>
+                            <option value="4.99">North Carolina (4.99%)</option>
+                            <option value="2.9">North Dakota (2.9%)</option>
+                            <option value="3.99">Ohio (3.99%)</option>
+                            <option value="4.75">Oklahoma (4.75%)</option>
+                            <option value="9.9">Oregon (9.9%)</option>
+                            <option value="3.07">Pennsylvania (3.07%)</option>
+                            <option value="5.99">Rhode Island (5.99%)</option>
+                            <option value="7">South Carolina (7%)</option>
+                            <option value="5">Utah (5%)</option>
+                            <option value="8.75">Vermont (8.75%)</option>
+                            <option value="5.75">Virginia (5.75%)</option>
+                            <option value="7.65">West Virginia (7.65%)</option>
+                            <option value="7.65">Wisconsin (7.65%)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Investment Projections</h3>
+
+                    <div class="form-group">
+                        <label for="rateOfReturn">Expected Annual Rate of Return (%)</label>
+                        <input type="number" id="rateOfReturn" name="rateOfReturn" value="8" required min="0" max="100" step="0.1" placeholder="8">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="annualWithdrawal">Annual Income Needed for Living ($)</label>
+                        <input type="number" id="annualWithdrawal" name="annualWithdrawal" required min="0" step="0.01" placeholder="Annual withdrawal amount">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Calculate Tax Savings</button>
+                    <button type="button" class="btn-secondary" onclick="window.location.href='life-expectancy-table.html'">View Life Expectancy Table</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="results" class="results-section" style="display: none;">
+            <h3>Tax Calculation Results</h3>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4>Asset Details</h4>
+                    <div class="result-item">
+                        <span>Capital Gain:</span>
+                        <span id="result-capital-gain">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Holding Period:</span>
+                        <span id="result-holding-period">0 days</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Gain Type:</span>
+                        <span id="result-gain-type">-</span>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4>Life Expectancy</h4>
+                    <div class="result-item">
+                        <span>Current Age:</span>
+                        <span id="result-age">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Life Expectancy:</span>
+                        <span id="result-life-expectancy">0 years</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Years Remaining:</span>
+                        <span id="result-years-remaining">0 years</span>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4>Traditional Method (No 453)</h4>
+                    <div class="result-item">
+                        <span>Federal Income Tax:</span>
+                        <span id="result-trad-federal">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>State Tax:</span>
+                        <span id="result-trad-state">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>NIIT (3.8%):</span>
+                        <span id="result-trad-niit">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Capital Gains Tax:</span>
+                        <span id="result-trad-cap-gains">$0</span>
+                    </div>
+                    <div class="result-item total">
+                        <span><strong>Total Tax (Year 1):</strong></span>
+                        <span id="result-trad-total"><strong>$0</strong></span>
+                    </div>
+                    <div class="result-item">
+                        <span>After-Tax Amount:</span>
+                        <span id="result-trad-after-tax">$0</span>
+                    </div>
+                </div>
+
+                <div class="result-card highlight">
+                    <h4>453 Structure Method</h4>
+                    <div class="result-item">
+                        <span>Tax Deferral:</span>
+                        <span id="result-453-deferral">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Annual Payment:</span>
+                        <span id="result-453-payment">$0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Tax Per Year (Avg):</span>
+                        <span id="result-453-annual-tax">$0</span>
+                    </div>
+                    <div class="result-item total">
+                        <span><strong>Total Tax Savings:</strong></span>
+                        <span id="result-453-savings"><strong>$0</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-section">
+                <h4>Wealth Projection Comparison</h4>
+                <div class="comparison-card">
+                    <div class="comparison-item">
+                        <h5>Traditional Method</h5>
+                        <p>Starting Amount After Tax: <span id="comp-trad-start">$0</span></p>
+                        <p>Projected Value (10 years): <span id="comp-trad-10y">$0</span></p>
+                        <p>Projected Value (20 years): <span id="comp-trad-20y">$0</span></p>
+                        <p>Projected Value (At Life Expectancy): <span id="comp-trad-life">$0</span></p>
+                    </div>
+                    <div class="comparison-item highlight">
+                        <h5>453 Structure Method</h5>
+                        <p>Starting Amount: <span id="comp-453-start">$0</span></p>
+                        <p>Projected Value (10 years): <span id="comp-453-10y">$0</span></p>
+                        <p>Projected Value (20 years): <span id="comp-453-20y">$0</span></p>
+                        <p>Projected Value (At Life Expectancy): <span id="comp-453-life">$0</span></p>
+                    </div>
+                </div>
+                <div class="advantage">
+                    <p><strong>Advantage with 453 Structure: <span id="total-advantage">$0</span></strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
