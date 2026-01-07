@@ -8,10 +8,25 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-text">DST Trust</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">Calculator</a>
+                <a href="tax-info.html" class="nav-link">Tax Information</a>
+                <a href="life-expectancy-table.html" class="nav-link">Life Expectancy</a>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
-        <header>
-            <h1>DST Trust</h1>
-            <h2>453 Tax Savings Calculator</h2>
+        <header class="page-header">
+            <div class="header-content">
+                <h1>453 Tax Savings Calculator</h1>
+                <p class="header-subtitle">Discover how the 453 structure can maximize your wealth preservation</p>
+            </div>
         </header>
 
         <div class="calculator-card">
@@ -144,8 +159,12 @@
                 </div>
 
                 <div class="button-group">
-                    <button type="submit" class="btn-primary">Calculate Tax Savings</button>
-                    <button type="button" class="btn-secondary" onclick="window.location.href='life-expectancy-table.html'">View Life Expectancy Table</button>
+                    <button type="submit" class="btn-primary">
+                        <span>Calculate Tax Savings</span>
+                        <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 10h12m-6-6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
                 </div>
             </form>
         </div>

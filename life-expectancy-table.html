@@ -7,14 +7,28 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-text">DST Trust</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Calculator</a>
+                <a href="tax-info.html" class="nav-link">Tax Information</a>
+                <a href="life-expectancy-table.html" class="nav-link active">Life Expectancy</a>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
-        <header>
-            <h1>DST Trust</h1>
-            <h2>Social Security Actuarial Life Expectancy Table</h2>
+        <header class="page-header">
+            <div class="header-content">
+                <h1>Social Security Life Expectancy Table</h1>
+                <p class="header-subtitle">Actuarial data for retirement planning</p>
+            </div>
         </header>
 
         <div class="table-container">
-            <a href="index.html" class="back-button">← Back to Calculator</a>
 
             <div class="info-text">
                 <h4>About This Table</h4>
@@ -107,9 +121,14 @@
                 <p style="margin-top: 15px;"><strong>Example:</strong> A 65-year-old male has a life expectancy of 17.8 more years, meaning they are expected to live to approximately age 82.8.</p>
                 <p style="margin-top: 10px;"><em>Source: Social Security Administration Actuarial Life Table (2024)</em></p>
             </div>
-
-            <a href="index.html" class="back-button" style="margin-top: 30px;">← Back to Calculator</a>
         </div>
     </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 DST Trust. All rights reserved.</p>
+            <p class="disclaimer">This calculator is for educational purposes only. Consult with a qualified tax professional before making financial decisions.</p>
+        </div>
+    </footer>
 </body>
 </html>
