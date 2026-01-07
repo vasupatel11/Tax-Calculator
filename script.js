@@ -1,74 +1,9 @@
-// IRS Tax Brackets for 2025 (Federal Income Tax)
-const TAX_BRACKETS_2025 = {
-    single: [
-        { min: 0, max: 11600, rate: 0.10 },
-        { min: 11600, max: 47150, rate: 0.12 },
-        { min: 47150, max: 100525, rate: 0.22 },
-        { min: 100525, max: 191950, rate: 0.24 },
-        { min: 191950, max: 243725, rate: 0.32 },
-        { min: 243725, max: 609350, rate: 0.35 },
-        { min: 609350, max: Infinity, rate: 0.37 }
-    ],
-    married_joint: [
-        { min: 0, max: 23200, rate: 0.10 },
-        { min: 23200, max: 94300, rate: 0.12 },
-        { min: 94300, max: 201050, rate: 0.22 },
-        { min: 201050, max: 383900, rate: 0.24 },
-        { min: 383900, max: 487450, rate: 0.32 },
-        { min: 487450, max: 731200, rate: 0.35 },
-        { min: 731200, max: Infinity, rate: 0.37 }
-    ],
-    married_separate: [
-        { min: 0, max: 11600, rate: 0.10 },
-        { min: 11600, max: 47150, rate: 0.12 },
-        { min: 47150, max: 100525, rate: 0.22 },
-        { min: 100525, max: 191950, rate: 0.24 },
-        { min: 191950, max: 243725, rate: 0.32 },
-        { min: 243725, max: 365600, rate: 0.35 },
-        { min: 365600, max: Infinity, rate: 0.37 }
-    ],
-    head_of_household: [
-        { min: 0, max: 16550, rate: 0.10 },
-        { min: 16550, max: 63100, rate: 0.12 },
-        { min: 63100, max: 100500, rate: 0.22 },
-        { min: 100500, max: 191950, rate: 0.24 },
-        { min: 191950, max: 243700, rate: 0.32 },
-        { min: 243700, max: 609350, rate: 0.35 },
-        { min: 609350, max: Infinity, rate: 0.37 }
-    ]
-};
-
-// Long-term Capital Gains Tax Brackets 2025
-const CAPITAL_GAINS_BRACKETS_2025 = {
-    single: [
-        { min: 0, max: 47025, rate: 0.00 },
-        { min: 47025, max: 518900, rate: 0.15 },
-        { min: 518900, max: Infinity, rate: 0.20 }
-    ],
-    married_joint: [
-        { min: 0, max: 94050, rate: 0.00 },
-        { min: 94050, max: 583750, rate: 0.15 },
-        { min: 583750, max: Infinity, rate: 0.20 }
-    ],
-    married_separate: [
-        { min: 0, max: 47025, rate: 0.00 },
-        { min: 47025, max: 291850, rate: 0.15 },
-        { min: 291850, max: Infinity, rate: 0.20 }
-    ],
-    head_of_household: [
-        { min: 0, max: 63000, rate: 0.00 },
-        { min: 63000, max: 551350, rate: 0.15 },
-        { min: 551350, max: Infinity, rate: 0.20 }
-    ]
-};
-
-// NIIT (Net Investment Income Tax) thresholds
-const NIIT_THRESHOLDS = {
-    single: 200000,
-    married_joint: 250000,
-    married_separate: 125000,
-    head_of_household: 200000
-};
+/**
+ * DST Trust 453 Tax Calculator
+ *
+ * This script uses centralized tax data from taxData.js
+ * All tax brackets and rates for 2026 are loaded from that file.
+ */
 
 // Social Security Actuarial Life Expectancy Table (2024)
 const LIFE_EXPECTANCY_TABLE = {
@@ -218,94 +153,35 @@ function getLifeExpectancy(age, gender) {
     return table[ages[ages.length - 1]];
 }
 
-// Calculate federal income tax
-function calculateFederalTax(income, filingStatus) {
-    const brackets = TAX_BRACKETS_2025[filingStatus];
-    if (!brackets) {
-        throw new Error('Invalid filing status');
-    }
+/**
+ * Tax calculation functions are imported from taxData.js:
+ * - calculateFederalTax(income, filingStatus)
+ * - calculateCapitalGainsTax(capitalGain, filingStatus)
+ * - calculateNIIT(netInvestmentIncome, modifiedAGI, filingStatus)
+ * - calculateStateTax(income, state)
+ * - getStateTaxRate(state)
+ * - formatCurrency(amount)
+ * - formatPercentage(rate)
+ * - formatFilingStatus(status)
+ */
 
-    let tax = 0;
-    let remainingIncome = income;
-
-    for (let i = 0; i < brackets.length; i++) {
-        const bracket = brackets[i];
-        const bracketSize = bracket.max - bracket.min;
-
-        if (remainingIncome <= 0) break;
-
-        if (remainingIncome > bracketSize) {
-            tax += bracketSize * bracket.rate;
-            remainingIncome -= bracketSize;
-        } else {
-            tax += remainingIncome * bracket.rate;
-            remainingIncome = 0;
-        }
-    }
-
-    return tax;
-}
-
-// Calculate capital gains tax
-function calculateCapitalGainsTax(capitalGain, income, filingStatus, isShortTerm) {
+// Wrapper for capital gains that handles short-term vs long-term
+function calculateCapitalGainsTaxWrapper(capitalGain, income, filingStatus, isShortTerm) {
     if (isShortTerm) {
+        // Short-term capital gains are taxed as ordinary income
         return calculateFederalTax(income + capitalGain, filingStatus) - calculateFederalTax(income, filingStatus);
     }
-
-    const brackets = CAPITAL_GAINS_BRACKETS_2025[filingStatus];
-    if (!brackets) {
-        throw new Error('Invalid filing status for capital gains');
-    }
-
-    let tax = 0;
-    let remainingGain = capitalGain;
-
-    for (let i = 0; i < brackets.length; i++) {
-        const bracket = brackets[i];
-        const bracketSize = bracket.max - bracket.min;
-
-        if (remainingGain <= 0) break;
-
-        if (remainingGain > bracketSize) {
-            tax += bracketSize * bracket.rate;
-            remainingGain -= bracketSize;
-        } else {
-            tax += remainingGain * bracket.rate;
-            remainingGain = 0;
-        }
-    }
-
-    return tax;
+    // Long-term capital gains use special brackets
+    return calculateCapitalGainsTax(capitalGain, filingStatus);
 }
 
-// Calculate NIIT (Net Investment Income Tax)
-function calculateNIIT(capitalGain, income, filingStatus) {
-    const threshold = NIIT_THRESHOLDS[filingStatus];
-    if (!threshold) {
-        throw new Error('Invalid filing status for NIIT');
-    }
-
-    const totalIncome = income + capitalGain;
-
-    if (totalIncome <= threshold) {
-        return 0;
-    }
-
-    const excessIncome = totalIncome - threshold;
-    const taxableAmount = Math.min(capitalGain, excessIncome);
-
-    return taxableAmount * 0.038;
+// Wrapper for NIIT to match old signature
+function calculateNIITWrapper(capitalGain, income, filingStatus) {
+    const modifiedAGI = income + capitalGain;
+    return calculateNIIT(capitalGain, modifiedAGI, filingStatus);
 }
 
-// Format currency
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(amount);
-}
+// Note: formatCurrency is now imported from taxData.js
 
 // Format compact currency (for chart labels)
 function formatCompactCurrency(amount) {
@@ -410,15 +286,7 @@ function populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGa
 }
 
 // Helper function to format filing status
-function formatFilingStatus(status) {
-    const statusMap = {
-        'single': 'Single',
-        'married_joint': 'Married Filing Jointly',
-        'married_separate': 'Married Filing Separately',
-        'head_of_household': 'Head of Household'
-    };
-    return statusMap[status] || status;
-}
+// Note: formatFilingStatus is now imported from taxData.js
 
 // Generate year-by-year projections for Traditional scenario
 function generateTraditionalProjections(startAge, yearsRemaining, assetValue, upfrontTax, rateOfReturn, baseLifestyleWithdrawal, filingStatus, stateRate) {
@@ -834,8 +702,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Life expectancy:', lifeExpectancy, 'Growth period:', growthPeriod);
 
             // Calculate upfront taxes for Traditional Method
-            const capitalGainsTax = calculateCapitalGainsTax(capitalGain, annualIncome, filingStatus, isShortTerm);
-            const niitTax = calculateNIIT(capitalGain, annualIncome, filingStatus);
+            const capitalGainsTax = calculateCapitalGainsTaxWrapper(capitalGain, annualIncome, filingStatus, isShortTerm);
+            const niitTax = calculateNIITWrapper(capitalGain, annualIncome, filingStatus);
             const stateTax = capitalGain * stateRate;
             const federalIncomeTax = calculateFederalTax(annualIncome, filingStatus);
 
