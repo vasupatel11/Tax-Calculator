@@ -31,10 +31,10 @@
     --gray-900: #111827;
 
     /* Background */
-    --bg-primary: #0a0e27;
-    --bg-secondary: #0f172a;
-    --bg-card: #1e293b;
-    --bg-gradient: linear-gradient(135deg, #0a0e27 0%, #1e293b 50%, #0f172a 100%);
+    --bg-primary: #1a1f35;
+    --bg-secondary: #1e293b;
+    --bg-card: #2a3548;
+    --bg-gradient: linear-gradient(135deg, #1a1f35 0%, #2a3548 50%, #1e293b 100%);
 
     /* Glassmorphism */
     --glass-bg: rgba(255, 255, 255, 0.05);
