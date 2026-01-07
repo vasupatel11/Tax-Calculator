@@ -30,33 +30,31 @@
     --gray-800: #1f2937;
     --gray-900: #111827;
 
-    /* Background - Off-white color scheme */
-    --bg-primary: #f5f5f0;
-    --bg-secondary: #ebebeb;
+    /* Background - Crisp off-white color scheme */
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #e9ecef;
     --bg-card: #ffffff;
     --bg-gradient: linear-gradient(135deg,
-        #f5f5f0 0%,
-        #ebebeb 25%,
-        #f0f0ea 50%,
-        #ebebeb 75%,
-        #f5f5f0 100%);
+        #f8f9fa 0%,
+        #e9ecef 50%,
+        #f8f9fa 100%);
 
     /* Glassmorphism - Adjusted for light theme */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(43, 95, 143, 0.2);
+    --glass-bg: rgba(255, 255, 255, 0.95);
+    --glass-border: rgba(43, 95, 143, 0.15);
 
-    /* Shadows - Adjusted for light theme */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.08);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.12);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.15);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.18);
-    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-    --shadow-glow: 0 0 20px rgba(43, 95, 143, 0.2);
+    /* Shadows - Enhanced for better depth */
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-glow: 0 0 0 3px rgba(43, 95, 143, 0.1);
 
-    /* Text - Dark colors for light background */
-    --text-primary: #1a1a1a;
-    --text-secondary: #4a4a4a;
-    --text-tertiary: #737373;
+    /* Text - Strong contrast for light background */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
 }
 
 * {
@@ -82,10 +80,10 @@ body {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--bg-card);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-lg);
+    border-bottom: 2px solid #e2e8f0;
+    box-shadow: var(--shadow-md);
 }
 
 .nav-container {
@@ -148,10 +146,10 @@ body {
     text-align: center;
     margin-bottom: 3rem;
     padding: 3rem 2rem;
-    background: linear-gradient(135deg, rgba(43, 95, 143, 0.1) 0%, rgba(212, 169, 88, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.05) 0%, rgba(212, 169, 88, 0.05) 100%);
     border-radius: 24px;
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(10px);
+    border: 2px solid #e2e8f0;
+    box-shadow: var(--shadow-sm);
 }
 
 .header-content h1 {
@@ -172,19 +170,18 @@ body {
 
 /* Calculator Card */
 .calculator-card {
-    background: rgba(30, 41, 59, 0.6);
-    backdrop-filter: blur(10px);
-    border-radius: 24px;
+    background: var(--bg-card);
+    border-radius: 20px;
     padding: 3rem;
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-2xl);
+    border: 2px solid #e2e8f0;
+    box-shadow: var(--shadow-lg);
     margin-bottom: 2rem;
 }
 
 .section {
     margin-bottom: 2.5rem;
     padding-bottom: 2rem;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .section:last-child {
@@ -226,25 +223,30 @@ body {
 .form-group select {
     width: 100%;
     padding: 0.875rem 1rem;
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
+    background: var(--bg-card);
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
     color: var(--text-primary);
     font-size: 1rem;
     transition: all 0.3s ease;
     font-family: inherit;
 }
 
+.form-group input:hover,
+.form-group select:hover {
+    border-color: #94a3b8;
+}
+
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
     border-color: var(--brand-blue);
-    background: rgba(15, 23, 42, 0.8);
-    box-shadow: 0 0 0 3px rgba(43, 95, 143, 0.1);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 4px rgba(43, 95, 143, 0.1);
 }
 
 .form-group input::placeholder {
-    color: var(--gray-500);
+    color: #94a3b8;
 }
 
 .radio-group {
@@ -257,9 +259,9 @@ body {
     display: flex;
     align-items: center;
     padding: 1rem 1.25rem;
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
+    background: var(--bg-card);
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -351,12 +353,11 @@ body {
 
 /* Results Section */
 .results-section {
-    background: rgba(30, 41, 59, 0.6);
-    backdrop-filter: blur(10px);
+    background: var(--bg-card);
     border-radius: 24px;
     padding: 3rem;
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-2xl);
+    border: 2px solid #e2e8f0;
+    box-shadow: var(--shadow-lg);
     margin-top: 2rem;
 }
 
@@ -377,27 +378,30 @@ body {
 }
 
 .stat-card {
-    background: linear-gradient(135deg, rgba(43, 95, 143, 0.15) 0%, rgba(107, 114, 128, 0.15) 100%);
-    border-radius: 20px;
+    background: var(--bg-card);
+    border-radius: 16px;
     padding: 2rem;
-    border: 1px solid var(--glass-border);
+    border: 2px solid #e2e8f0;
     transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-xl);
-    border-color: var(--brand-gold);
+    border-color: var(--brand-blue);
 }
 
 .stat-card.highlight {
-    background: linear-gradient(135deg, rgba(212, 169, 88, 0.15) 0%, rgba(43, 95, 143, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(212, 169, 88, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
     border-color: var(--brand-gold);
+    border-width: 2px;
 }
 
 .stat-card.advantage {
-    background: linear-gradient(135deg, rgba(43, 95, 143, 0.15) 0%, rgba(212, 169, 88, 0.15) 100%);
+    background: var(--bg-card);
     border: 2px solid var(--brand-gold);
+    box-shadow: 0 0 0 4px rgba(212, 169, 88, 0.1);
 }
 
 .stat-card-title {
@@ -407,7 +411,7 @@ body {
     margin-bottom: 1.5rem;
     text-align: center;
     padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--glass-border);
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .stat-row {
@@ -415,7 +419,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .stat-row:last-child {
@@ -465,12 +469,12 @@ body {
 
 /* Tax Breakdown Section */
 .tax-breakdown-section {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
+    background: var(--bg-card);
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
     padding: 2rem;
     margin-bottom: 3rem;
-    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
 }
 
 .tax-breakdown-section h4 {
@@ -484,6 +488,9 @@ body {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 2rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .tax-breakdown-table thead {
@@ -493,7 +500,7 @@ body {
 .tax-breakdown-table th {
     padding: 1rem;
     text-align: left;
-    color: var(--text-primary);
+    color: white;
     font-weight: 600;
     font-size: 0.9rem;
     text-transform: uppercase;
@@ -502,12 +509,12 @@ body {
 
 .tax-breakdown-table td {
     padding: 1rem;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 1px solid #e2e8f0;
     color: var(--text-secondary);
 }
 
 .tax-breakdown-table tbody tr:hover {
-    background: rgba(43, 95, 143, 0.1);
+    background: #f8f9fa;
 }
 
 .tax-breakdown-table tbody tr:last-child td {
@@ -515,10 +522,11 @@ body {
 }
 
 .tax-summary-box {
-    background: linear-gradient(135deg, rgba(43, 95, 143, 0.15) 0%, rgba(212, 169, 88, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(212, 169, 88, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
     border: 2px solid var(--brand-gold);
-    border-radius: 15px;
+    border-radius: 12px;
     padding: 1.5rem;
+    box-shadow: 0 0 0 4px rgba(212, 169, 88, 0.05);
 }
 
 .tax-summary-row {
@@ -526,7 +534,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 0;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .tax-summary-row:last-child {
@@ -566,21 +574,24 @@ body {
 }
 
 .result-card {
-    background: rgba(15, 23, 42, 0.5);
-    border-radius: 16px;
+    background: var(--bg-card);
+    border-radius: 12px;
     padding: 1.5rem;
-    border: 1px solid var(--glass-border);
+    border: 2px solid #e2e8f0;
     transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
 }
 
 .result-card:hover {
     border-color: var(--brand-blue);
     box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
 }
 
 .result-card.highlight {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+    background: var(--bg-card);
     border-color: var(--accent-green);
+    border-width: 2px;
 }
 
 .result-card h4 {
@@ -594,7 +605,7 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 0.75rem 0;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .result-item:last-child {
@@ -618,11 +629,12 @@ body {
 
 /* Chart Section */
 .chart-section {
-    background: rgba(15, 23, 42, 0.5);
-    border-radius: 20px;
+    background: var(--bg-card);
+    border-radius: 16px;
     padding: 2rem;
     margin-top: 3rem;
-    border: 1px solid var(--glass-border);
+    border: 2px solid #e2e8f0;
+    box-shadow: var(--shadow-md);
 }
 
 .chart-section h4 {
@@ -636,18 +648,20 @@ body {
 .chart-container {
     position: relative;
     height: 400px;
-    background: rgba(10, 14, 39, 0.5);
-    border-radius: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
     padding: 1.5rem;
+    border: 1px solid #e2e8f0;
 }
 
 /* Table Section */
 .table-section {
     margin-top: 3rem;
-    background: rgba(15, 23, 42, 0.5);
-    border-radius: 20px;
+    background: var(--bg-card);
+    border-radius: 16px;
     padding: 2rem;
-    border: 1px solid var(--glass-border);
+    border: 2px solid #e2e8f0;
+    box-shadow: var(--shadow-md);
 }
 
 .table-section h4 {
@@ -670,16 +684,16 @@ body {
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     font-weight: 600;
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    background: rgba(15, 23, 42, 0.5);
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    background: var(--bg-card);
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .toggle-btn:hover {
-    background: rgba(43, 95, 143, 0.1);
+    background: #f1f5f9;
     border-color: var(--brand-blue);
     color: var(--text-primary);
 }
@@ -687,15 +701,15 @@ body {
 .toggle-btn.active {
     background: linear-gradient(135deg, var(--brand-blue) 0%, var(--primary-dark) 100%);
     color: white;
-    border-color: transparent;
+    border-color: var(--brand-blue);
     box-shadow: var(--shadow-glow);
 }
 
 .table-wrapper {
     overflow-x: auto;
-    background: rgba(10, 14, 39, 0.5);
+    background: var(--bg-card);
     border-radius: 16px;
-    border: 1px solid var(--glass-border);
+    border: 2px solid #e2e8f0;
 }
 
 .projection-table {
@@ -705,7 +719,7 @@ body {
 }
 
 .projection-table thead {
-    background: linear-gradient(135deg, rgba(43, 95, 143, 0.2) 0%, rgba(212, 169, 88, 0.2) 100%);
+    background: linear-gradient(135deg, var(--brand-blue) 0%, var(--primary-dark) 100%);
     position: sticky;
     top: 0;
 }
@@ -714,8 +728,8 @@ body {
     padding: 1rem;
     text-align: right;
     font-weight: 600;
-    color: var(--brand-gold);
-    border-bottom: 2px solid var(--glass-border);
+    color: white;
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .projection-table th:first-child {
@@ -724,7 +738,7 @@ body {
 
 .projection-table td {
     padding: 0.875rem 1rem;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 1px solid #e2e8f0;
     text-align: right;
     color: var(--text-secondary);
 }
@@ -732,11 +746,11 @@ body {
 .projection-table td:first-child {
     text-align: center;
     font-weight: 600;
-    color: var(--brand-gold);
+    color: var(--brand-blue);
 }
 
 .projection-table tbody tr:hover {
-    background: rgba(43, 95, 143, 0.05);
+    background: #f8f9fa;
 }
 
 .compliance-col {
@@ -745,22 +759,22 @@ body {
 
 /* Tax Info Page Styles */
 .info-card {
-    background: rgba(30, 41, 59, 0.6);
-    backdrop-filter: blur(10px);
+    background: var(--bg-card);
     border-radius: 24px;
-    border: 1px solid var(--glass-border);
+    border: 2px solid #e2e8f0;
     margin-bottom: 2rem;
     overflow: hidden;
+    box-shadow: var(--shadow-md);
 }
 
 .info-card-header {
-    background: linear-gradient(135deg, rgba(43, 95, 143, 0.15) 0%, rgba(212, 169, 88, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.05) 0%, rgba(212, 169, 88, 0.05) 100%);
     padding: 2rem;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .info-card-header h2 {
-    color: var(--brand-gold);
+    color: var(--brand-blue);
     font-size: 1.75rem;
     margin-bottom: 0.5rem;
     font-weight: 700;
@@ -792,33 +806,33 @@ body {
 .tax-table {
     width: 100%;
     border-collapse: collapse;
-    background: rgba(15, 23, 42, 0.5);
+    background: var(--bg-card);
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid var(--glass-border);
+    border: 2px solid #e2e8f0;
 }
 
 .tax-table thead {
-    background: linear-gradient(135deg, rgba(43, 95, 143, 0.2) 0%, rgba(212, 169, 88, 0.2) 100%);
+    background: linear-gradient(135deg, var(--brand-blue) 0%, var(--primary-dark) 100%);
 }
 
 .tax-table th {
     padding: 0.875rem 1rem;
     text-align: left;
     font-weight: 600;
-    color: var(--brand-gold);
+    color: white;
     font-size: 0.875rem;
 }
 
 .tax-table td {
     padding: 0.75rem 1rem;
-    border-top: 1px solid var(--glass-border);
+    border-top: 1px solid #e2e8f0;
     color: var(--text-secondary);
     font-size: 0.875rem;
 }
 
 .tax-table tbody tr:hover {
-    background: rgba(43, 95, 143, 0.05);
+    background: #f8f9fa;
 }
 
 .description {
@@ -934,8 +948,8 @@ body {
 }
 
 .example-box {
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid var(--glass-border);
+    background: var(--bg-card);
+    border: 2px solid #e2e8f0;
     border-radius: 12px;
     padding: 1.5rem;
 }
@@ -944,7 +958,7 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 0.75rem 0;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 1px solid #e2e8f0;
     color: var(--text-secondary);
 }
 
@@ -1007,8 +1021,8 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 1rem;
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid var(--glass-border);
+    background: var(--bg-card);
+    border: 2px solid #e2e8f0;
     border-radius: 12px;
 }
 
@@ -1029,8 +1043,8 @@ body {
 .calc-section {
     margin-bottom: 2rem;
     padding: 1.5rem;
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid var(--glass-border);
+    background: var(--bg-card);
+    border: 2px solid #e2e8f0;
     border-radius: 16px;
 }
 
@@ -1045,7 +1059,7 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 0.75rem 0;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 1px solid #e2e8f0;
     color: var(--text-secondary);
 }
 
@@ -1056,7 +1070,7 @@ body {
 .calc-row.subtotal {
     margin-top: 0.5rem;
     padding-top: 1rem;
-    border-top: 2px solid var(--glass-border);
+    border-top: 2px solid #e2e8f0;
 }
 
 .calc-row.subtotal strong {
@@ -1107,9 +1121,9 @@ body {
 .cta-section {
     text-align: center;
     padding: 4rem 2rem;
-    background: linear-gradient(135deg, rgba(43, 95, 143, 0.1) 0%, rgba(212, 169, 88, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.05) 0%, rgba(212, 169, 88, 0.05) 100%);
     border-radius: 24px;
-    border: 1px solid var(--glass-border);
+    border: 2px solid #e2e8f0;
     margin-top: 3rem;
 }
 
@@ -1130,7 +1144,7 @@ body {
     margin-top: 4rem;
     padding: 2rem;
     text-align: center;
-    border-top: 1px solid var(--glass-border);
+    border-top: 2px solid #e2e8f0;
 }
 
 .footer-content p {
@@ -1146,12 +1160,11 @@ body {
 
 /* Life Expectancy Table */
 .table-container {
-    background: rgba(30, 41, 59, 0.6);
-    backdrop-filter: blur(10px);
+    background: var(--bg-card);
     border-radius: 24px;
     padding: 2.5rem;
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-2xl);
+    border: 2px solid #e2e8f0;
+    box-shadow: var(--shadow-lg);
 }
 
 .table-container h3 {
@@ -1166,15 +1179,17 @@ body {
 }
 
 .info-text {
-    background: rgba(15, 23, 42, 0.5);
+    background: #f8f9fa;
     padding: 1.5rem;
     border-radius: 16px;
     margin-bottom: 2rem;
     border-left: 4px solid var(--brand-blue);
+    border: 2px solid #e2e8f0;
+    border-left: 4px solid var(--brand-blue);
 }
 
 .info-text h4 {
-    color: var(--brand-gold);
+    color: var(--brand-blue);
     font-size: 1.25rem;
     margin-bottom: 1rem;
     font-weight: 600;
@@ -1208,32 +1223,32 @@ body {
 .table-container table {
     width: 100%;
     border-collapse: collapse;
-    background: rgba(15, 23, 42, 0.5);
+    background: var(--bg-card);
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid var(--glass-border);
+    border: 2px solid #e2e8f0;
 }
 
 .table-container thead {
-    background: linear-gradient(135deg, rgba(43, 95, 143, 0.2) 0%, rgba(212, 169, 88, 0.2) 100%);
+    background: linear-gradient(135deg, var(--brand-blue) 0%, var(--primary-dark) 100%);
 }
 
 .table-container th {
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: var(--brand-gold);
-    border-bottom: 2px solid var(--glass-border);
+    color: white;
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .table-container td {
     padding: 0.875rem 1rem;
-    border-top: 1px solid var(--glass-border);
+    border-top: 1px solid #e2e8f0;
     color: var(--text-secondary);
 }
 
 .table-container tbody tr:hover {
-    background: rgba(43, 95, 143, 0.05);
+    background: #f8f9fa;
 }
 
 /* Responsive Design */
