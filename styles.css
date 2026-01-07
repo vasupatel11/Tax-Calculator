@@ -399,9 +399,9 @@ body {
 }
 
 .stat-card.advantage {
-    background: var(--bg-card);
+    background: linear-gradient(135deg, rgba(212, 169, 88, 0.15) 0%, rgba(255, 223, 128, 0.1) 50%, rgba(212, 169, 88, 0.15) 100%);
     border: 2px solid var(--brand-gold);
-    box-shadow: 0 0 0 4px rgba(212, 169, 88, 0.1);
+    box-shadow: 0 0 0 4px rgba(212, 169, 88, 0.2), var(--shadow-lg);
 }
 
 .stat-card-title {
@@ -457,6 +457,14 @@ body {
 
 .stat-value.gold {
     color: var(--brand-gold);
+}
+
+.stat-value.orange {
+    color: #ff8c00;
+}
+
+.stat-value.dark-green {
+    color: #006400;
 }
 
 .stat-label {
@@ -754,7 +762,57 @@ body {
 }
 
 .compliance-col {
-    background: rgba(245, 158, 11, 0.1) !important;
+    /* Highlight removed per user request */
+}
+
+.growth-col {
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+/* AI Analysis Section */
+.ai-analysis-section {
+    background: linear-gradient(135deg, rgba(212, 169, 88, 0.08) 0%, rgba(43, 95, 143, 0.08) 100%);
+    border: 2px solid var(--brand-gold);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-top: 3rem;
+    box-shadow: 0 0 0 4px rgba(212, 169, 88, 0.1), var(--shadow-lg);
+}
+
+.ai-analysis-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(212, 169, 88, 0.3);
+}
+
+.ai-icon {
+    color: var(--brand-gold);
+    flex-shrink: 0;
+}
+
+.ai-analysis-header h4 {
+    color: var(--brand-blue);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.ai-analysis-content {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 2rem;
+    border-left: 4px solid var(--brand-gold);
+}
+
+.ai-analysis-text {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin: 0;
+    font-weight: 500;
 }
 
 /* Tax Info Page Styles */

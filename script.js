@@ -411,7 +411,7 @@ function renderProjectionTable(projections, scenario) {
             tr.innerHTML = `
                 <td>${row.age}</td>
                 <td>${formatCurrency(row.assetBeginning)}</td>
-                <td>${formatCurrency(row.growth)}</td>
+                <td class="growth-col">${formatCurrency(row.growth)}</td>
                 <td class="compliance-col">${formatCurrency(row.complianceFee)}</td>
                 <td>${formatCurrency(row.lifestyleWithdrawal)}</td>
                 <td>${formatCurrency(row.tax)}</td>
@@ -421,7 +421,7 @@ function renderProjectionTable(projections, scenario) {
             tr.innerHTML = `
                 <td>${row.age}</td>
                 <td>${formatCurrency(row.assetBeginning)}</td>
-                <td>${formatCurrency(row.growth)}</td>
+                <td class="growth-col">${formatCurrency(row.growth)}</td>
                 <td class="compliance-col" style="display: none;"></td>
                 <td>${formatCurrency(row.lifestyleWithdrawal)}</td>
                 <td>${formatCurrency(row.tax)}</td>
@@ -448,6 +448,7 @@ function createComparisonChart(traditionalData, method453Data, startAge) {
     const labels = traditionalData.map(d => d.age);
     const traditionalValues = traditionalData.map(d => d.netEnding);
     const method453Values = method453Data.map(d => d.netEnding);
+    const valueDifference = method453Values.map((val, idx) => val - traditionalValues[idx]);
 
     comparisonChart = new Chart(ctx, {
         type: 'line',
@@ -466,7 +467,8 @@ function createComparisonChart(traditionalData, method453Data, startAge) {
                     pointHoverRadius: 6,
                     pointBackgroundColor: '#c44d4d',
                     pointBorderColor: '#fff',
-                    pointBorderWidth: 2
+                    pointBorderWidth: 2,
+                    yAxisID: 'y'
                 },
                 {
                     label: 'Net Ending - DST Trust 453',
@@ -480,7 +482,18 @@ function createComparisonChart(traditionalData, method453Data, startAge) {
                     pointHoverRadius: 6,
                     pointBackgroundColor: '#d4a958',
                     pointBorderColor: '#fff',
-                    pointBorderWidth: 2
+                    pointBorderWidth: 2,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Value Added (453 vs Traditional)',
+                    data: valueDifference,
+                    type: 'bar',
+                    backgroundColor: 'rgba(16, 185, 129, 0.3)',
+                    borderColor: 'rgba(16, 185, 129, 0.6)',
+                    borderWidth: 1,
+                    yAxisID: 'y1',
+                    order: 1
                 }
             ]
         },
@@ -557,11 +570,68 @@ function createComparisonChart(traditionalData, method453Data, startAge) {
                     },
                     grid: {
                         color: 'rgba(0, 0, 0, 0.08)'
-                    }
+                    },
+                    position: 'left'
+                },
+                y1: {
+                    title: {
+                        display: true,
+                        text: 'Value Added',
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        color: '#10b981'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return formatCompactCurrency(value);
+                        },
+                        color: '#10b981'
+                    },
+                    grid: {
+                        display: false
+                    },
+                    position: 'right'
                 }
             }
         }
     });
+}
+
+// Generate AI-Powered Analysis
+function generateAIAnalysis(inputs, results) {
+    const {
+        assetValue,
+        capitalGain,
+        growthPeriod,
+        annualWithdrawal,
+        rateOfReturn,
+        age,
+        gender,
+        lifeExpectancy
+    } = inputs;
+
+    const {
+        totalUpfrontTax,
+        traditionalFinalValue,
+        method453FinalValue,
+        additionalValue
+    } = results;
+
+    const taxSavingsPercent = ((additionalValue / assetValue) * 100).toFixed(1);
+    const yearlyGrowthProtected = growthPeriod;
+    const compoundBenefit = (((method453FinalValue / traditionalFinalValue) - 1) * 100).toFixed(1);
+
+    // Calculate generational impact (assuming 30 years per generation)
+    const generationsImpacted = Math.floor(lifeExpectancy / 30) + 1;
+
+    const analysisText = `Based on your ${formatCurrency(assetValue)} asset sale with ${formatCurrency(capitalGain)} in capital gains, the DST Trust 453 structure offers compelling advantages for long-term wealth preservation and multi-generational value creation. By deferring ${formatCurrency(totalUpfrontTax)} in immediate taxes, you preserve ${taxSavingsPercent}% more capital to work for you during your ${yearlyGrowthProtected}-year tax-protected growth period. This tax deferral strategy, combined with your ${(rateOfReturn * 100).toFixed(1)}% annual return and ${formatCurrency(annualWithdrawal)} in lifestyle withdrawals, creates ${formatCurrency(additionalValue)} in additional wealth—a ${compoundBenefit}% enhancement over traditional liquidation. The power of tax-protected compounding during these critical growth years means your wealth continues to multiply unencumbered by immediate tax obligations, creating sustainable value that can benefit ${generationsImpacted} ${generationsImpacted > 1 ? 'generations' : 'generation'} of your family. This structure transforms what would be a one-time tax burden into a strategic wealth multiplication tool, ensuring that more of your hard-earned capital stays invested and working to build lasting family wealth rather than being immediately depleted by taxation.`;
+
+    const analysisContainer = document.querySelector('.ai-analysis-text');
+    if (analysisContainer) {
+        analysisContainer.textContent = analysisText;
+    }
 }
 
 // Toggle scenario buttons
@@ -786,6 +856,26 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Rendering table and chart...');
             renderProjectionTable(traditionalProjections, 'traditional');
             createComparisonChart(traditionalProjections, method453Projections, age);
+
+            // Generate AI analysis
+            generateAIAnalysis(
+                {
+                    assetValue,
+                    capitalGain,
+                    growthPeriod,
+                    annualWithdrawal,
+                    rateOfReturn,
+                    age,
+                    gender,
+                    lifeExpectancy
+                },
+                {
+                    totalUpfrontTax,
+                    traditionalFinalValue,
+                    method453FinalValue,
+                    additionalValue: finalAdvantage
+                }
+            );
 
             // Show results section
             const resultsSection = document.getElementById('results');
