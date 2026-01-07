@@ -30,33 +30,33 @@
     --gray-800: #1f2937;
     --gray-900: #111827;
 
-    /* Background - Lighter shades with brand color gradient */
-    --bg-primary: #3a4a5c;
-    --bg-secondary: #435363;
-    --bg-card: #4d5d6f;
+    /* Background - Off-white color scheme */
+    --bg-primary: #f5f5f0;
+    --bg-secondary: #ebebeb;
+    --bg-card: #ffffff;
     --bg-gradient: linear-gradient(135deg,
-        #2c3e50 0%,
-        #34495e 25%,
-        #3a4a5c 50%,
-        #435363 75%,
-        #3a4a5c 100%);
+        #f5f5f0 0%,
+        #ebebeb 25%,
+        #f0f0ea 50%,
+        #ebebeb 75%,
+        #f5f5f0 100%);
 
-    /* Glassmorphism */
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    /* Glassmorphism - Adjusted for light theme */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(43, 95, 143, 0.2);
 
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    /* Shadows - Adjusted for light theme */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.08);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.12);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.15);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.18);
     --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-    --shadow-glow: 0 0 20px rgba(43, 95, 143, 0.3);
+    --shadow-glow: 0 0 20px rgba(43, 95, 143, 0.2);
 
-    /* Text */
-    --text-primary: #f1f5f9;
-    --text-secondary: #cbd5e1;
-    --text-tertiary: #94a3b8;
+    /* Text - Dark colors for light background */
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    --text-tertiary: #737373;
 }
 
 * {
@@ -82,7 +82,7 @@ body {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--glass-border);
     box-shadow: var(--shadow-lg);

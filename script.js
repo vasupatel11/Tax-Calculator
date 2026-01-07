@@ -634,11 +634,11 @@ function createComparisonChart(traditionalData, method453Data, startAge) {
                         },
                         padding: 20,
                         usePointStyle: true,
-                        color: '#cbd5e1'
+                        color: '#1a1a1a'
                     }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
                     padding: 15,
                     titleFont: {
                         size: 16
@@ -662,13 +662,13 @@ function createComparisonChart(traditionalData, method453Data, startAge) {
                             size: 14,
                             weight: 'bold'
                         },
-                        color: '#cbd5e1'
+                        color: '#1a1a1a'
                     },
                     grid: {
                         display: false
                     },
                     ticks: {
-                        color: '#94a3b8'
+                        color: '#4a4a4a'
                     }
                 },
                 y: {
@@ -679,16 +679,16 @@ function createComparisonChart(traditionalData, method453Data, startAge) {
                             size: 14,
                             weight: 'bold'
                         },
-                        color: '#cbd5e1'
+                        color: '#1a1a1a'
                     },
                     ticks: {
                         callback: function(value) {
                             return formatCompactCurrency(value);
                         },
-                        color: '#94a3b8'
+                        color: '#4a4a4a'
                     },
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.05)'
+                        color: 'rgba(0, 0, 0, 0.08)'
                     }
                 }
             }
@@ -896,26 +896,23 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('summary-453-final').textContent = formatCurrency(method453FinalValue);
             document.getElementById('summary-additional-value').textContent = formatCurrency(finalAdvantage);
 
-            // Display basic results
+            // Display summary results
+            document.getElementById('result-asset-value').textContent = formatCurrency(assetValue);
+            document.getElementById('result-cost-basis').textContent = formatCurrency(costBasis);
             document.getElementById('result-capital-gain').textContent = formatCurrency(capitalGain);
-            document.getElementById('result-holding-period').textContent = isShortTerm ? 'Less than 1 year' : 'More than 1 year';
             document.getElementById('result-gain-type').textContent = isShortTerm ? 'Short-term' : 'Long-term';
+            document.getElementById('result-filing-status').textContent = formatFilingStatus(filingStatus);
+            document.getElementById('result-state-name').textContent = stateName;
+            document.getElementById('result-annual-withdrawal').textContent = formatCurrency(annualWithdrawal);
+            document.getElementById('result-projection-period').textContent = growthPeriod + ' years';
 
-            document.getElementById('result-age').textContent = age;
-            document.getElementById('result-life-expectancy').textContent = lifeExpectancy.toFixed(1) + ' years';
-            document.getElementById('result-years-remaining').textContent = growthPeriod + ' years (projection period)';
-
+            // Display Traditional Method results
             document.getElementById('result-trad-federal').textContent = formatCurrency(federalIncomeTax);
             document.getElementById('result-trad-state').textContent = formatCurrency(stateTax);
             document.getElementById('result-trad-niit').textContent = formatCurrency(niitTax);
             document.getElementById('result-trad-cap-gains').textContent = formatCurrency(capitalGainsTax);
             document.getElementById('result-trad-total').textContent = formatCurrency(totalUpfrontTax);
             document.getElementById('result-trad-after-tax').textContent = formatCurrency(afterTaxAmount);
-
-            document.getElementById('result-453-deferral').textContent = formatCurrency(totalUpfrontTax);
-            document.getElementById('result-453-payment').textContent = 'N/A';
-            document.getElementById('result-453-annual-tax').textContent = formatCurrency(method453TotalTax / growthPeriod);
-            document.getElementById('result-453-savings').textContent = formatCurrency(taxSavings);
 
             // Render table and chart
             console.log('Rendering table and chart...');
