@@ -413,6 +413,100 @@ body {
     letter-spacing: 1px;
 }
 
+/* Tax Breakdown Section */
+.tax-breakdown-section {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    backdrop-filter: blur(10px);
+}
+
+.tax-breakdown-section h4 {
+    color: var(--brand-blue);
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.tax-breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+.tax-breakdown-table thead {
+    background: linear-gradient(135deg, var(--brand-blue) 0%, var(--primary-dark) 100%);
+}
+
+.tax-breakdown-table th {
+    padding: 1rem;
+    text-align: left;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tax-breakdown-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+}
+
+.tax-breakdown-table tbody tr:hover {
+    background: rgba(43, 95, 143, 0.1);
+}
+
+.tax-breakdown-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tax-summary-box {
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.15) 0%, rgba(212, 169, 88, 0.15) 100%);
+    border: 2px solid var(--brand-gold);
+    border-radius: 15px;
+    padding: 1.5rem;
+}
+
+.tax-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.tax-summary-row:last-child {
+    border-bottom: none;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+}
+
+.tax-summary-row.highlight {
+    background: rgba(212, 169, 88, 0.1);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.tax-summary-label {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.tax-summary-value {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.tax-summary-row.highlight .tax-summary-value {
+    color: var(--brand-gold);
+    font-size: 1.5rem;
+}
+
 /* Result Cards */
 .results-grid {
     display: grid;

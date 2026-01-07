@@ -157,6 +157,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // Update max growth period note when age or gender changes
+    const ageField = document.getElementById('age');
+    const genderField = document.getElementById('gender');
+    const growthPeriodNote = document.getElementById('growthPeriodNote');
+    const growthPeriodField = document.getElementById('growthPeriod');
+
+    function updateMaxGrowthPeriod() {
+        const age = parseInt(ageField.value);
+        const gender = genderField.value;
+
+        if (age && gender && age >= 1 && age <= 120) {
+            const lifeExpectancy = getLifeExpectancy(age, gender);
+            const maxYears = Math.floor(lifeExpectancy);
+            growthPeriodNote.innerHTML = `<strong>Max ${maxYears} years allowed</strong> based on your age and gender`;
+            growthPeriodNote.style.color = 'var(--brand-gold)';
+
+            // Update max attribute on growth period field
+            growthPeriodField.setAttribute('max', maxYears);
+        } else {
+            growthPeriodNote.textContent = 'Select your age and gender above to see maximum allowed years';
+            growthPeriodNote.style.color = 'var(--text-tertiary)';
+        }
+    }
+
+    if (ageField && genderField) {
+        ageField.addEventListener('input', updateMaxGrowthPeriod);
+        ageField.addEventListener('change', updateMaxGrowthPeriod);
+        genderField.addEventListener('change', updateMaxGrowthPeriod);
+    }
 });
 
 // Get life expectancy based on age and gender
@@ -287,31 +317,118 @@ function formatCompactCurrency(amount) {
     return formatCurrency(amount);
 }
 
-// Generate year-by-year projections for Traditional scenario
-function generateTraditionalProjections(startAge, yearsRemaining, startingAsset, rateOfReturn, lifestyleWithdrawal, filingStatus, stateRate) {
-    const projections = [];
-    let currentAsset = startingAsset;
+// Populate tax breakdown table
+function populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGainsTax, niitTax, stateTax, stateRate, isShortTerm) {
+    const tbody = document.getElementById('taxBreakdownBody');
+    if (!tbody) {
+        console.error('Tax breakdown table body not found');
+        return;
+    }
 
-    for (let year = 0; year < yearsRemaining; year++) {
+    tbody.innerHTML = '';
+
+    // Asset Sale
+    let row = tbody.insertRow();
+    row.innerHTML = `
+        <td><strong>Asset Sale Price</strong></td>
+        <td>-</td>
+        <td><strong>${formatCurrency(assetValue)}</strong></td>
+    `;
+
+    // Cost Basis
+    row = tbody.insertRow();
+    row.innerHTML = `
+        <td>Less: Cost Basis</td>
+        <td>-</td>
+        <td>-${formatCurrency(costBasis)}</td>
+    `;
+
+    // Capital Gain
+    row = tbody.insertRow();
+    row.innerHTML = `
+        <td><strong>Capital Gain</strong></td>
+        <td>${formatCurrency(assetValue)} - ${formatCurrency(costBasis)}</td>
+        <td><strong>${formatCurrency(capitalGain)}</strong></td>
+    `;
+
+    // Federal Capital Gains Tax
+    const gainType = isShortTerm ? 'Short-term' : 'Long-term';
+    row = tbody.insertRow();
+    row.innerHTML = `
+        <td>Federal Capital Gains Tax (${gainType})</td>
+        <td>Based on 2025 IRS brackets</td>
+        <td>${formatCurrency(capitalGainsTax)}</td>
+    `;
+
+    // NIIT
+    row = tbody.insertRow();
+    row.innerHTML = `
+        <td>Net Investment Income Tax (NIIT)</td>
+        <td>3.8% on high earners</td>
+        <td>${formatCurrency(niitTax)}</td>
+    `;
+
+    // State Tax
+    row = tbody.insertRow();
+    row.innerHTML = `
+        <td>State Tax</td>
+        <td>${(stateRate * 100).toFixed(2)}% of capital gain</td>
+        <td>${formatCurrency(stateTax)}</td>
+    `;
+
+    // Update summary
+    const totalTax = capitalGainsTax + niitTax + stateTax;
+    const effectiveRate = (totalTax / assetValue) * 100;
+    const netProceeds = assetValue - totalTax;
+
+    document.getElementById('breakdown-total-tax').textContent = formatCurrency(totalTax);
+    document.getElementById('breakdown-effective-rate').textContent = effectiveRate.toFixed(2) + '%';
+    document.getElementById('breakdown-net-proceeds').textContent = formatCurrency(netProceeds);
+}
+
+// Generate year-by-year projections for Traditional scenario
+function generateTraditionalProjections(startAge, yearsRemaining, assetValue, upfrontTax, rateOfReturn, baseLifestyleWithdrawal, filingStatus, stateRate) {
+    const projections = [];
+    const inflationRate = 0.05; // 5% annual inflation
+
+    // Year 1: Asset sale year - pay upfront taxes, no growth yet, no withdrawals
+    const afterTaxAmount = assetValue - upfrontTax;
+    projections.push({
+        age: startAge,
+        assetBeginning: assetValue,
+        growth: 0,
+        lifestyleWithdrawal: 0,
+        tax: upfrontTax,
+        netEnding: afterTaxAmount
+    });
+
+    // Year 2+: Asset is now invested and earning returns
+    let currentAsset = afterTaxAmount;
+    let currentWithdrawal = baseLifestyleWithdrawal;
+
+    for (let year = 1; year < yearsRemaining; year++) {
         const age = startAge + year;
         const assetBeginning = currentAsset;
         const growth = assetBeginning * rateOfReturn;
 
-        // Tax is calculated on the withdrawal amount only (as if it's their only income)
-        const withdrawalTax = calculateFederalTax(lifestyleWithdrawal, filingStatus) + (lifestyleWithdrawal * stateRate);
+        // Tax is calculated on the withdrawal amount as income
+        const withdrawalTax = calculateFederalTax(currentWithdrawal, filingStatus) + (currentWithdrawal * stateRate);
 
-        const netEnding = assetBeginning + growth - lifestyleWithdrawal - withdrawalTax;
+        const netEnding = assetBeginning + growth - currentWithdrawal - withdrawalTax;
 
         projections.push({
             age: age,
             assetBeginning: assetBeginning,
             growth: growth,
-            lifestyleWithdrawal: lifestyleWithdrawal,
+            lifestyleWithdrawal: currentWithdrawal,
             tax: withdrawalTax,
             netEnding: netEnding > 0 ? netEnding : 0
         });
 
         currentAsset = netEnding > 0 ? netEnding : 0;
+
+        // Increase withdrawal by 5% for next year
+        currentWithdrawal = currentWithdrawal * (1 + inflationRate);
 
         if (currentAsset <= 0) break;
     }
@@ -320,33 +437,53 @@ function generateTraditionalProjections(startAge, yearsRemaining, startingAsset,
 }
 
 // Generate year-by-year projections for 453 scenario
-function generate453Projections(startAge, yearsRemaining, startingAsset, rateOfReturn, lifestyleWithdrawal, filingStatus, stateRate) {
+function generate453Projections(startAge, yearsRemaining, assetValue, complianceFeeRate, rateOfReturn, baseLifestyleWithdrawal, filingStatus, stateRate) {
     const projections = [];
-    let currentAsset = startingAsset;
-    const complianceFeeRate = 0.015; // 1.5%
+    const inflationRate = 0.05; // 5% annual inflation
 
-    for (let year = 0; year < yearsRemaining; year++) {
+    // Year 1: Asset sale year - only pay compliance fee, no growth yet, no withdrawals, no taxes
+    const year1ComplianceFee = assetValue * complianceFeeRate;
+    const year1NetEnding = assetValue - year1ComplianceFee;
+
+    projections.push({
+        age: startAge,
+        assetBeginning: assetValue,
+        growth: 0,
+        complianceFee: year1ComplianceFee,
+        lifestyleWithdrawal: 0,
+        tax: 0,
+        netEnding: year1NetEnding
+    });
+
+    // Year 2+: Asset is now invested and earning returns
+    let currentAsset = year1NetEnding;
+    let currentWithdrawal = baseLifestyleWithdrawal;
+
+    for (let year = 1; year < yearsRemaining; year++) {
         const age = startAge + year;
         const assetBeginning = currentAsset;
         const growth = assetBeginning * rateOfReturn;
         const complianceFee = assetBeginning * complianceFeeRate;
 
-        // Tax is calculated on the withdrawal amount only
-        const withdrawalTax = calculateFederalTax(lifestyleWithdrawal, filingStatus) + (lifestyleWithdrawal * stateRate);
+        // Tax is calculated on the withdrawal amount as income
+        const withdrawalTax = calculateFederalTax(currentWithdrawal, filingStatus) + (currentWithdrawal * stateRate);
 
-        const netEnding = assetBeginning + growth - complianceFee - lifestyleWithdrawal - withdrawalTax;
+        const netEnding = assetBeginning + growth - complianceFee - currentWithdrawal - withdrawalTax;
 
         projections.push({
             age: age,
             assetBeginning: assetBeginning,
             growth: growth,
             complianceFee: complianceFee,
-            lifestyleWithdrawal: lifestyleWithdrawal,
+            lifestyleWithdrawal: currentWithdrawal,
             tax: withdrawalTax,
             netEnding: netEnding > 0 ? netEnding : 0
         });
 
         currentAsset = netEnding > 0 ? netEnding : 0;
+
+        // Increase withdrawal by 5% for next year
+        currentWithdrawal = currentWithdrawal * (1 + inflationRate);
 
         if (currentAsset <= 0) break;
     }
@@ -607,6 +744,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const annualWithdrawal = validateNumericInput(document.getElementById('annualWithdrawal').value, 'Annual Withdrawal');
 
+            // Get growth period
+            const growthPeriod = parseInt(document.getElementById('growthPeriod').value);
+            if (!growthPeriod || growthPeriod < 1) {
+                alert('Please enter a valid Tax-Protected Growth Period');
+                return;
+            }
+
+            // Get compliance fee
+            const complianceFee = parseFloat(document.getElementById('complianceFee').value);
+            if (isNaN(complianceFee) || complianceFee < 0) {
+                alert('Please enter a valid Compliance Support Fee percentage');
+                return;
+            }
+            const complianceFeeRate = complianceFee / 100;
+
+            // Get life expectancy to validate growth period
+            const lifeExpectancy = getLifeExpectancy(age, gender);
+            const maxYears = Math.floor(lifeExpectancy);
+
+            if (growthPeriod > maxYears) {
+                alert(`Tax-Protected Growth Period cannot exceed ${maxYears} years (your life expectancy based on age and gender)`);
+                return;
+            }
+
             console.log('All inputs validated:', {
                 assetValue,
                 costBasis,
@@ -617,7 +778,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 annualIncome,
                 stateRate,
                 rateOfReturn,
-                annualWithdrawal
+                annualWithdrawal,
+                growthPeriod,
+                complianceFeeRate
             });
 
             // Calculate capital gain
@@ -627,16 +790,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Get life expectancy
-            const lifeExpectancy = getLifeExpectancy(age, gender);
-            const yearsRemaining = Math.round(lifeExpectancy);
-
-            console.log('Life expectancy:', lifeExpectancy, 'Years remaining:', yearsRemaining);
-
-            if (yearsRemaining <= 0) {
-                alert('Unable to calculate life expectancy for the given age');
-                return;
-            }
+            console.log('Life expectancy:', lifeExpectancy, 'Growth period:', growthPeriod);
 
             // Calculate upfront taxes for Traditional Method
             const capitalGainsTax = calculateCapitalGainsTax(capitalGain, annualIncome, filingStatus, isShortTerm);
@@ -655,10 +809,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 afterTaxAmount
             });
 
+            // Populate tax breakdown table
+            console.log('Populating tax breakdown table...');
+            populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGainsTax, niitTax, stateTax, stateRate, isShortTerm);
+
+            // Update compliance fee header
+            document.getElementById('complianceFeeHeader').textContent = `(${complianceFee}%)`;
+
             // Generate projections
             console.log('Generating projections...');
-            traditionalProjections = generateTraditionalProjections(age, yearsRemaining, afterTaxAmount, rateOfReturn, annualWithdrawal, filingStatus, stateRate);
-            method453Projections = generate453Projections(age, yearsRemaining, assetValue, rateOfReturn, annualWithdrawal, filingStatus, stateRate);
+            traditionalProjections = generateTraditionalProjections(age, growthPeriod, assetValue, totalUpfrontTax, rateOfReturn, annualWithdrawal, filingStatus, stateRate);
+            method453Projections = generate453Projections(age, growthPeriod, assetValue, complianceFeeRate, rateOfReturn, annualWithdrawal, filingStatus, stateRate);
 
             const traditionalFinalValue = traditionalProjections.length > 0 ? traditionalProjections[traditionalProjections.length - 1].netEnding : 0;
             const method453FinalValue = method453Projections.length > 0 ? method453Projections[method453Projections.length - 1].netEnding : 0;
@@ -688,7 +849,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             document.getElementById('result-age').textContent = age;
             document.getElementById('result-life-expectancy').textContent = lifeExpectancy.toFixed(1) + ' years';
-            document.getElementById('result-years-remaining').textContent = yearsRemaining + ' years';
+            document.getElementById('result-years-remaining').textContent = growthPeriod + ' years (projection period)';
 
             document.getElementById('result-trad-federal').textContent = formatCurrency(federalIncomeTax);
             document.getElementById('result-trad-state').textContent = formatCurrency(stateTax);
@@ -699,7 +860,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             document.getElementById('result-453-deferral').textContent = formatCurrency(totalUpfrontTax);
             document.getElementById('result-453-payment').textContent = 'N/A';
-            document.getElementById('result-453-annual-tax').textContent = formatCurrency(method453TotalTax / yearsRemaining);
+            document.getElementById('result-453-annual-tax').textContent = formatCurrency(method453TotalTax / growthPeriod);
             document.getElementById('result-453-savings').textContent = formatCurrency(taxSavings);
 
             // Render table and chart
