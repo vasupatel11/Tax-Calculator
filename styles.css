@@ -30,11 +30,16 @@
     --gray-800: #1f2937;
     --gray-900: #111827;
 
-    /* Background */
-    --bg-primary: #1a1f35;
-    --bg-secondary: #1e293b;
-    --bg-card: #2a3548;
-    --bg-gradient: linear-gradient(135deg, #1a1f35 0%, #2a3548 50%, #1e293b 100%);
+    /* Background - Lighter shades with brand color gradient */
+    --bg-primary: #3a4a5c;
+    --bg-secondary: #435363;
+    --bg-card: #4d5d6f;
+    --bg-gradient: linear-gradient(135deg,
+        #2c3e50 0%,
+        #34495e 25%,
+        #3a4a5c 50%,
+        #435363 75%,
+        #3a4a5c 100%);
 
     /* Glassmorphism */
     --glass-bg: rgba(255, 255, 255, 0.05);
@@ -372,10 +377,9 @@ body {
 }
 
 .stat-card {
-    background: linear-gradient(135deg, rgba(43, 95, 143, 0.1) 0%, rgba(212, 169, 88, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.15) 0%, rgba(107, 114, 128, 0.15) 100%);
     border-radius: 20px;
     padding: 2rem;
-    text-align: center;
     border: 1px solid var(--glass-border);
     transition: all 0.3s ease;
 }
@@ -387,22 +391,68 @@ body {
 }
 
 .stat-card.highlight {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%);
-    border-color: var(--accent-green);
+    background: linear-gradient(135deg, rgba(212, 169, 88, 0.15) 0%, rgba(43, 95, 143, 0.15) 100%);
+    border-color: var(--brand-gold);
+}
+
+.stat-card.advantage {
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.15) 0%, rgba(212, 169, 88, 0.15) 100%);
+    border: 2px solid var(--brand-gold);
+}
+
+.stat-card-title {
+    font-size: 1.25rem;
+    color: var(--brand-blue);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--glass-border);
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+.stat-row.highlight-row {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--brand-gold);
+    background: rgba(212, 169, 88, 0.1);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.stat-sublabel {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-weight: 500;
 }
 
 .stat-value {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.5rem;
 }
 
-.stat-card.highlight .stat-value {
-    background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-cyan) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.stat-value.red {
+    color: var(--brand-red);
+}
+
+.stat-value.green {
+    color: var(--accent-green);
+}
+
+.stat-value.gold {
+    color: var(--brand-gold);
 }
 
 .stat-label {

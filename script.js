@@ -318,7 +318,7 @@ function formatCompactCurrency(amount) {
 }
 
 // Populate tax breakdown table
-function populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGainsTax, niitTax, stateTax, stateRate, isShortTerm) {
+function populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGainsTax, niitTax, stateTax, stateRate, isShortTerm, filingStatus, stateName, annualWithdrawal) {
     const tbody = document.getElementById('taxBreakdownBody');
     if (!tbody) {
         console.error('Tax breakdown table body not found');
@@ -327,8 +327,16 @@ function populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGa
 
     tbody.innerHTML = '';
 
-    // Asset Sale
+    // Filing Status and State Info Row
     let row = tbody.insertRow();
+    row.innerHTML = `
+        <td colspan="3" style="background: rgba(43, 95, 143, 0.1); font-weight: 600;">
+            Filing Status: ${formatFilingStatus(filingStatus)} | State: ${stateName}
+        </td>
+    `;
+
+    // Asset Sale
+    row = tbody.insertRow();
     row.innerHTML = `
         <td><strong>Asset Sale Price</strong></td>
         <td>-</td>
@@ -353,28 +361,43 @@ function populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGa
 
     // Federal Capital Gains Tax
     const gainType = isShortTerm ? 'Short-term' : 'Long-term';
+    const capGainsRate = ((capitalGainsTax / capitalGain) * 100).toFixed(2);
     row = tbody.insertRow();
     row.innerHTML = `
         <td>Federal Capital Gains Tax (${gainType})</td>
-        <td>Based on 2025 IRS brackets</td>
+        <td>${capGainsRate}% effective rate</td>
         <td>${formatCurrency(capitalGainsTax)}</td>
     `;
 
     // NIIT
+    const niitRate = niitTax > 0 ? '3.8%' : '0% (below threshold)';
     row = tbody.insertRow();
     row.innerHTML = `
         <td>Net Investment Income Tax (NIIT)</td>
-        <td>3.8% on high earners</td>
+        <td>${niitRate} on investment income</td>
         <td>${formatCurrency(niitTax)}</td>
     `;
 
     // State Tax
     row = tbody.insertRow();
     row.innerHTML = `
-        <td>State Tax</td>
+        <td>State Tax (${stateName})</td>
         <td>${(stateRate * 100).toFixed(2)}% of capital gain</td>
         <td>${formatCurrency(stateTax)}</td>
     `;
+
+    // Withdrawal Tax Rate (if applicable)
+    if (annualWithdrawal > 0) {
+        const withdrawalTax = calculateFederalTax(annualWithdrawal, filingStatus) + (annualWithdrawal * stateRate);
+        const withdrawalTaxRate = ((withdrawalTax / annualWithdrawal) * 100).toFixed(2);
+        row = tbody.insertRow();
+        row.innerHTML = `
+            <td colspan="3" style="background: rgba(212, 169, 88, 0.1); padding-top: 1rem; border-top: 2px solid var(--brand-gold);">
+                <strong>Annual Withdrawal Tax Rate:</strong> ${withdrawalTaxRate}%
+                (${formatCurrency(withdrawalTax)} tax on ${formatCurrency(annualWithdrawal)} withdrawal, assuming this is your only income)
+            </td>
+        `;
+    }
 
     // Update summary
     const totalTax = capitalGainsTax + niitTax + stateTax;
@@ -384,6 +407,17 @@ function populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGa
     document.getElementById('breakdown-total-tax').textContent = formatCurrency(totalTax);
     document.getElementById('breakdown-effective-rate').textContent = effectiveRate.toFixed(2) + '%';
     document.getElementById('breakdown-net-proceeds').textContent = formatCurrency(netProceeds);
+}
+
+// Helper function to format filing status
+function formatFilingStatus(status) {
+    const statusMap = {
+        'single': 'Single',
+        'married_joint': 'Married Filing Jointly',
+        'married_separate': 'Married Filing Separately',
+        'head_of_household': 'Head of Household'
+    };
+    return statusMap[status] || status;
 }
 
 // Generate year-by-year projections for Traditional scenario
@@ -463,7 +497,8 @@ function generate453Projections(startAge, yearsRemaining, assetValue, compliance
         const age = startAge + year;
         const assetBeginning = currentAsset;
         const growth = assetBeginning * rateOfReturn;
-        const complianceFee = assetBeginning * complianceFeeRate;
+        // Compliance fee is calculated on Asset (Beginning) + Growth
+        const complianceFee = (assetBeginning + growth) * complianceFeeRate;
 
         // Tax is calculated on the withdrawal amount as income
         const withdrawalTax = calculateFederalTax(currentWithdrawal, filingStatus) + (currentWithdrawal * stateRate);
@@ -555,23 +590,29 @@ function createComparisonChart(traditionalData, method453Data, startAge) {
                     label: 'Net Ending - Traditional',
                     data: traditionalValues,
                     borderColor: '#c44d4d',
-                    backgroundColor: 'rgba(196, 77, 77, 0.1)',
+                    backgroundColor: 'rgba(196, 77, 77, 0.2)',
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4,
                     pointRadius: 4,
-                    pointHoverRadius: 6
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#c44d4d',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
                 },
                 {
-                    label: 'Net Ending - Carmel Estate 453',
+                    label: 'Net Ending - DST Trust 453',
                     data: method453Values,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderColor: '#d4a958',
+                    backgroundColor: 'rgba(212, 169, 88, 0.2)',
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4,
                     pointRadius: 4,
-                    pointHoverRadius: 6
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#d4a958',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
                 }
             ]
         },
@@ -809,9 +850,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 afterTaxAmount
             });
 
+            // Get state name
+            const stateName = stateSelect.options[stateSelect.selectedIndex].text;
+
             // Populate tax breakdown table
             console.log('Populating tax breakdown table...');
-            populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGainsTax, niitTax, stateTax, stateRate, isShortTerm);
+            populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGainsTax, niitTax, stateTax, stateRate, isShortTerm, filingStatus, stateName, annualWithdrawal);
 
             // Update compliance fee header
             document.getElementById('complianceFeeHeader').textContent = `(${complianceFee}%)`;
@@ -830,6 +874,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const method453TotalTax = method453Projections.reduce((sum, p) => sum + p.tax, 0);
             const taxSavings = traditionalTotalTax - method453TotalTax;
 
+            // Get Year 1 net proceeds for both scenarios
+            const traditionalYear1NetProceeds = afterTaxAmount;
+            const method453Year1NetProceeds = method453Projections[0].netEnding;
+
             console.log('Projection results:', {
                 traditionalFinalValue,
                 method453FinalValue,
@@ -837,10 +885,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 taxSavings
             });
 
-            // Update summary stats
-            document.getElementById('summary-upfront-tax').textContent = formatCurrency(totalUpfrontTax);
-            document.getElementById('summary-453-savings').textContent = formatCurrency(taxSavings);
-            document.getElementById('summary-final-advantage').textContent = formatCurrency(finalAdvantage);
+            // Update summary stats with new format
+            document.getElementById('summary-trad-tax-bill').textContent = '-' + formatCurrency(totalUpfrontTax);
+            document.getElementById('summary-trad-net-proceeds').textContent = formatCurrency(traditionalYear1NetProceeds);
+
+            document.getElementById('summary-453-tax-bill').textContent = '$0';
+            document.getElementById('summary-453-net-proceeds').textContent = formatCurrency(method453Year1NetProceeds);
+
+            document.getElementById('summary-trad-final').textContent = formatCurrency(traditionalFinalValue);
+            document.getElementById('summary-453-final').textContent = formatCurrency(method453FinalValue);
+            document.getElementById('summary-additional-value').textContent = formatCurrency(finalAdvantage);
 
             // Display basic results
             document.getElementById('result-capital-gain').textContent = formatCurrency(capitalGain);

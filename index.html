@@ -190,16 +190,41 @@
 
             <div class="summary-stats">
                 <div class="stat-card">
-                    <div class="stat-value" id="summary-upfront-tax">$0</div>
-                    <div class="stat-label">Traditional Upfront Tax</div>
+                    <h4 class="stat-card-title">Traditional Sale</h4>
+                    <div class="stat-row negative">
+                        <span class="stat-sublabel">Tax Bill at Sale:</span>
+                        <span class="stat-value red" id="summary-trad-tax-bill">$0</span>
+                    </div>
+                    <div class="stat-row positive">
+                        <span class="stat-sublabel">Net Proceeds (Year 1):</span>
+                        <span class="stat-value green" id="summary-trad-net-proceeds">$0</span>
+                    </div>
                 </div>
                 <div class="stat-card highlight">
-                    <div class="stat-value" id="summary-453-savings">$0</div>
-                    <div class="stat-label">453 Tax Savings</div>
+                    <h4 class="stat-card-title">DST Trust 453</h4>
+                    <div class="stat-row positive">
+                        <span class="stat-sublabel">Tax Bill at Sale:</span>
+                        <span class="stat-value green" id="summary-453-tax-bill">$0</span>
+                    </div>
+                    <div class="stat-row positive">
+                        <span class="stat-sublabel">Net Proceeds (Year 1):</span>
+                        <span class="stat-value green" id="summary-453-net-proceeds">$0</span>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="summary-final-advantage">$0</div>
-                    <div class="stat-label">Final Wealth Advantage</div>
+                <div class="stat-card advantage">
+                    <h4 class="stat-card-title">Value Growth Comparison</h4>
+                    <div class="stat-row">
+                        <span class="stat-sublabel">Final Value (Traditional):</span>
+                        <span class="stat-value" id="summary-trad-final">$0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-sublabel">Final Value (453):</span>
+                        <span class="stat-value" id="summary-453-final">$0</span>
+                    </div>
+                    <div class="stat-row highlight-row">
+                        <span class="stat-sublabel"><strong>Additional Value (453):</strong></span>
+                        <span class="stat-value gold" id="summary-additional-value"><strong>$0</strong></span>
+                    </div>
                 </div>
             </div>
 
