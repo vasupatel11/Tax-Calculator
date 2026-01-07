@@ -1,16 +1,22 @@
-/* Modern Tech Color Palette */
+/* Brand Colors - DST Trust */
 :root {
-    /* Primary Colors */
-    --primary-blue: #2563eb;
-    --primary-dark: #1e40af;
-    --primary-light: #60a5fa;
+    /* Primary Brand Colors */
+    --brand-blue: #2b5f8f;
+    --brand-gold: #d4a958;
+    --brand-red: #c44d4d;
+    --brand-gray: #6B7280;
+
+    /* Derived Colors */
+    --primary-blue: #2b5f8f;
+    --primary-dark: #1e4466;
+    --primary-light: #3d7db3;
 
     /* Accent Colors */
-    --accent-purple: #8b5cf6;
-    --accent-cyan: #06b6d4;
+    --accent-gold: #d4a958;
+    --accent-gold-light: #e6c278;
+    --accent-red: #c44d4d;
     --accent-green: #10b981;
-    --accent-orange: #f59e0b;
-    --accent-pink: #ec4899;
+    --accent-cyan: #06b6d4;
 
     /* Neutrals */
     --gray-50: #f9fafb;
@@ -40,7 +46,7 @@
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
     --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-    --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.3);
+    --shadow-glow: 0 0 20px rgba(43, 95, 143, 0.3);
 
     /* Text */
     --text-primary: #f1f5f9;
@@ -94,7 +100,7 @@ body {
 .logo-text {
     font-size: 1.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent-purple) 100%);
+    background: linear-gradient(135deg, var(--brand-gold) 0%, var(--accent-gold-light) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -121,8 +127,8 @@ body {
 }
 
 .nav-link.active {
-    color: var(--primary-light);
-    background: rgba(37, 99, 235, 0.1);
+    color: var(--brand-gold);
+    background: rgba(212, 169, 88, 0.1);
 }
 
 /* Container */
@@ -137,7 +143,7 @@ body {
     text-align: center;
     margin-bottom: 3rem;
     padding: 3rem 2rem;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.1) 0%, rgba(212, 169, 88, 0.1) 100%);
     border-radius: 24px;
     border: 1px solid var(--glass-border);
     backdrop-filter: blur(10px);
@@ -147,7 +153,7 @@ body {
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 100%);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--brand-gold) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -181,7 +187,7 @@ body {
 }
 
 .section h3 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
     font-weight: 600;
@@ -194,7 +200,7 @@ body {
     content: '';
     width: 4px;
     height: 24px;
-    background: linear-gradient(180deg, var(--primary-light) 0%, var(--accent-purple) 100%);
+    background: linear-gradient(180deg, var(--brand-blue) 0%, var(--brand-gold) 100%);
     border-radius: 2px;
 }
 
@@ -227,9 +233,9 @@ body {
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--primary-light);
+    border-color: var(--brand-blue);
     background: rgba(15, 23, 42, 0.8);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(43, 95, 143, 0.1);
 }
 
 .form-group input::placeholder {
@@ -254,20 +260,20 @@ body {
 }
 
 .radio-label:hover {
-    border-color: var(--primary-light);
-    background: rgba(37, 99, 235, 0.05);
+    border-color: var(--brand-blue);
+    background: rgba(43, 95, 143, 0.05);
 }
 
 .radio-label input[type="radio"] {
     width: auto;
     margin-right: 0.75rem;
     cursor: pointer;
-    accent-color: var(--primary-blue);
+    accent-color: var(--brand-blue);
 }
 
 .radio-label input[type="radio"]:checked + span {
     font-weight: 600;
-    color: var(--primary-light);
+    color: var(--brand-blue);
 }
 
 .help-text {
@@ -304,7 +310,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-purple) 100%);
+    background: linear-gradient(135deg, var(--brand-blue) 0%, var(--primary-dark) 100%);
     color: white;
     box-shadow: var(--shadow-glow);
     flex: 1;
@@ -312,7 +318,7 @@ body {
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 30px rgba(37, 99, 235, 0.5);
+    box-shadow: 0 0 30px rgba(43, 95, 143, 0.5);
 }
 
 .btn-primary:active {
@@ -335,7 +341,7 @@ body {
 
 .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: var(--primary-light);
+    border-color: var(--brand-gold);
 }
 
 /* Results Section */
@@ -350,7 +356,7 @@ body {
 }
 
 .results-section h3 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 2rem;
     margin-bottom: 2rem;
     text-align: center;
@@ -366,7 +372,7 @@ body {
 }
 
 .stat-card {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.1) 0%, rgba(212, 169, 88, 0.1) 100%);
     border-radius: 20px;
     padding: 2rem;
     text-align: center;
@@ -377,7 +383,7 @@ body {
 .stat-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-xl);
-    border-color: var(--primary-light);
+    border-color: var(--brand-gold);
 }
 
 .stat-card.highlight {
@@ -424,7 +430,7 @@ body {
 }
 
 .result-card:hover {
-    border-color: var(--primary-light);
+    border-color: var(--brand-blue);
     box-shadow: var(--shadow-lg);
 }
 
@@ -434,7 +440,7 @@ body {
 }
 
 .result-card h4 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 1.125rem;
     margin-bottom: 1rem;
     font-weight: 600;
@@ -456,14 +462,14 @@ body {
 }
 
 .result-item span:last-child {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-weight: 600;
 }
 
 .result-item.total {
     margin-top: 0.5rem;
     padding-top: 1rem;
-    border-top: 2px solid var(--primary-blue);
+    border-top: 2px solid var(--brand-blue);
 }
 
 /* Chart Section */
@@ -476,7 +482,7 @@ body {
 }
 
 .chart-section h4 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 1.5rem;
     margin-bottom: 2rem;
     text-align: center;
@@ -501,7 +507,7 @@ body {
 }
 
 .table-section h4 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
     text-align: center;
@@ -529,13 +535,13 @@ body {
 }
 
 .toggle-btn:hover {
-    background: rgba(37, 99, 235, 0.1);
-    border-color: var(--primary-light);
+    background: rgba(43, 95, 143, 0.1);
+    border-color: var(--brand-blue);
     color: var(--text-primary);
 }
 
 .toggle-btn.active {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-purple) 100%);
+    background: linear-gradient(135deg, var(--brand-blue) 0%, var(--primary-dark) 100%);
     color: white;
     border-color: transparent;
     box-shadow: var(--shadow-glow);
@@ -555,7 +561,7 @@ body {
 }
 
 .projection-table thead {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.2) 0%, rgba(212, 169, 88, 0.2) 100%);
     position: sticky;
     top: 0;
 }
@@ -564,7 +570,7 @@ body {
     padding: 1rem;
     text-align: right;
     font-weight: 600;
-    color: var(--primary-light);
+    color: var(--brand-gold);
     border-bottom: 2px solid var(--glass-border);
 }
 
@@ -582,11 +588,11 @@ body {
 .projection-table td:first-child {
     text-align: center;
     font-weight: 600;
-    color: var(--primary-light);
+    color: var(--brand-gold);
 }
 
 .projection-table tbody tr:hover {
-    background: rgba(37, 99, 235, 0.05);
+    background: rgba(43, 95, 143, 0.05);
 }
 
 .compliance-col {
@@ -604,13 +610,13 @@ body {
 }
 
 .info-card-header {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.15) 0%, rgba(212, 169, 88, 0.15) 100%);
     padding: 2rem;
     border-bottom: 1px solid var(--glass-border);
 }
 
 .info-card-header h2 {
-    color: var(--primary-light);
+    color: var(--brand-gold);
     font-size: 1.75rem;
     margin-bottom: 0.5rem;
     font-weight: 700;
@@ -633,7 +639,7 @@ body {
 
 .tax-table-section h3,
 .tax-table-section h4 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 1.125rem;
     margin-bottom: 1rem;
     font-weight: 600;
@@ -649,14 +655,14 @@ body {
 }
 
 .tax-table thead {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.2) 0%, rgba(212, 169, 88, 0.2) 100%);
 }
 
 .tax-table th {
     padding: 0.875rem 1rem;
     text-align: left;
     font-weight: 600;
-    color: var(--primary-light);
+    color: var(--brand-gold);
     font-size: 0.875rem;
 }
 
@@ -668,7 +674,7 @@ body {
 }
 
 .tax-table tbody tr:hover {
-    background: rgba(37, 99, 235, 0.05);
+    background: rgba(43, 95, 143, 0.05);
 }
 
 .description {
@@ -682,7 +688,7 @@ body {
 }
 
 .cg-section h3 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 1.5rem;
     margin-bottom: 1rem;
     font-weight: 600;
@@ -737,7 +743,7 @@ body {
 }
 
 .niit-explanation h3 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 1.25rem;
     margin-top: 2rem;
     margin-bottom: 1rem;
@@ -769,7 +775,7 @@ body {
     content: '→';
     position: absolute;
     left: 0;
-    color: var(--primary-light);
+    color: var(--brand-gold);
 }
 
 .feature-list li strong {
@@ -777,7 +783,7 @@ body {
 }
 
 .niit-example h3 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 1.25rem;
     margin-bottom: 1rem;
     font-weight: 600;
@@ -803,7 +809,7 @@ body {
 }
 
 .example-row.highlight {
-    background: rgba(37, 99, 235, 0.05);
+    background: rgba(43, 95, 143, 0.05);
     margin: 0 -0.5rem;
     padding: 0.75rem 0.5rem;
     border-radius: 8px;
@@ -812,7 +818,7 @@ body {
 .example-row.total {
     margin-top: 0.5rem;
     padding-top: 1rem;
-    border-top: 2px solid var(--primary-blue);
+    border-top: 2px solid var(--brand-blue);
     font-size: 1.125rem;
 }
 
@@ -830,8 +836,8 @@ body {
 .tax-note {
     margin-top: 1.5rem;
     padding: 1rem;
-    background: rgba(37, 99, 235, 0.05);
-    border-left: 4px solid var(--primary-blue);
+    background: rgba(43, 95, 143, 0.05);
+    border-left: 4px solid var(--brand-blue);
     border-radius: 8px;
     color: var(--text-secondary);
 }
@@ -885,7 +891,7 @@ body {
 }
 
 .calc-section h4 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 1.125rem;
     margin-bottom: 1rem;
     font-weight: 600;
@@ -910,23 +916,23 @@ body {
 }
 
 .calc-row.subtotal strong {
-    color: var(--primary-light);
+    color: var(--brand-blue);
 }
 
 .total-section {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-    border-color: var(--primary-blue);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.1) 0%, rgba(212, 169, 88, 0.1) 100%);
+    border-color: var(--brand-blue);
 }
 
 .calc-row.total {
     font-size: 1.25rem;
-    border-top: 3px solid var(--primary-blue);
+    border-top: 3px solid var(--brand-blue);
     padding-top: 1rem;
     margin-top: 0.5rem;
 }
 
 .calc-row.total strong {
-    color: var(--primary-light);
+    color: var(--brand-gold);
 }
 
 .calc-row.effective-rate {
@@ -957,7 +963,7 @@ body {
 .cta-section {
     text-align: center;
     padding: 4rem 2rem;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.1) 0%, rgba(212, 169, 88, 0.1) 100%);
     border-radius: 24px;
     border: 1px solid var(--glass-border);
     margin-top: 3rem;
@@ -1005,7 +1011,7 @@ body {
 }
 
 .table-container h3 {
-    color: var(--primary-light);
+    color: var(--brand-blue);
     font-size: 1.75rem;
     margin: 2rem 0 1.5rem;
     font-weight: 600;
@@ -1020,11 +1026,11 @@ body {
     padding: 1.5rem;
     border-radius: 16px;
     margin-bottom: 2rem;
-    border-left: 4px solid var(--primary-blue);
+    border-left: 4px solid var(--brand-blue);
 }
 
 .info-text h4 {
-    color: var(--primary-light);
+    color: var(--brand-gold);
     font-size: 1.25rem;
     margin-bottom: 1rem;
     font-weight: 600;
@@ -1052,7 +1058,7 @@ body {
     content: '•';
     position: absolute;
     left: 0;
-    color: var(--primary-light);
+    color: var(--brand-gold);
 }
 
 .table-container table {
@@ -1065,14 +1071,14 @@ body {
 }
 
 .table-container thead {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+    background: linear-gradient(135deg, rgba(43, 95, 143, 0.2) 0%, rgba(212, 169, 88, 0.2) 100%);
 }
 
 .table-container th {
     padding: 1rem;
     text-align: left;
     font-weight: 600;
-    color: var(--primary-light);
+    color: var(--brand-gold);
     border-bottom: 2px solid var(--glass-border);
 }
 
@@ -1083,7 +1089,7 @@ body {
 }
 
 .table-container tbody tr:hover {
-    background: rgba(37, 99, 235, 0.05);
+    background: rgba(43, 95, 143, 0.05);
 }
 
 /* Responsive Design */
