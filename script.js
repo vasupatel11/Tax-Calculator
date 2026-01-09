@@ -26,6 +26,18 @@ let comparisonChart = null;
 let traditionalProjections = [];
 let method453Projections = [];
 
+// Global variables to store calculation parameters for slider
+let calculationParams = {
+    age: 0,
+    growthPeriod: 0,
+    assetValue: 0,
+    totalUpfrontTax: 0,
+    complianceFeeRate: 0,
+    annualWithdrawal: 0,
+    filingStatus: '',
+    stateRate: 0
+};
+
 // ===== UTILITY FUNCTIONS =====
 
 // Format number with commas
@@ -235,15 +247,47 @@ function populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGa
         <td><strong>${formatCurrency(capitalGain)}</strong></td>
     `;
 
-    // Federal Capital Gains Tax
+    // Federal Capital Gains Tax with progressive breakdown
     const gainType = isShortTerm ? 'Short-term' : 'Long-term';
     const capGainsRate = ((capitalGainsTax / capitalGain) * 100).toFixed(2);
+
     row = tbody.insertRow();
     row.innerHTML = `
         <td>Federal Capital Gains Tax (${gainType})</td>
-        <td>${capGainsRate}% effective rate</td>
+        <td>${capGainsRate}% effective rate (progressive brackets apply)</td>
         <td>${formatCurrency(capitalGainsTax)}</td>
     `;
+
+    // Add progressive bracket explanation for long-term gains
+    if (!isShortTerm && capitalGain > 100000) {
+        const brackets = CAPITAL_GAINS_BRACKETS_2026[filingStatus];
+        if (brackets) {
+            let remainingGain = capitalGain;
+            let bracketDetails = '<div style="font-size: 0.85em; color: var(--text-tertiary); margin-left: 1rem;">';
+
+            brackets.forEach((bracket, idx) => {
+                if (remainingGain > 0) {
+                    const bracketSize = Math.min(remainingGain, bracket.max - bracket.min);
+                    const bracketTax = bracketSize * bracket.rate;
+                    if (bracketSize > 0) {
+                        const rangeText = bracket.max === Infinity
+                            ? `Above ${formatCurrency(bracket.min)}`
+                            : `${formatCurrency(bracket.min)} - ${formatCurrency(bracket.max)}`;
+                        bracketDetails += `• ${rangeText} @ ${(bracket.rate * 100)}%: ${formatCurrency(bracketTax)}<br>`;
+                        remainingGain -= bracketSize;
+                    }
+                }
+            });
+            bracketDetails += '</div>';
+
+            row = tbody.insertRow();
+            row.innerHTML = `
+                <td colspan="3" style="background: rgba(43, 95, 143, 0.05); padding: 0.75rem; font-size: 0.9em;">
+                    <strong>Progressive Calculation:</strong><br>${bracketDetails}
+                </td>
+            `;
+        }
+    }
 
     // NIIT
     const niitRate = niitTax > 0 ? '3.8%' : '0% (below threshold)';
@@ -261,19 +305,6 @@ function populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGa
         <td>${(stateRate * 100).toFixed(2)}% of capital gain</td>
         <td>${formatCurrency(stateTax)}</td>
     `;
-
-    // Withdrawal Tax Rate (if applicable)
-    if (annualWithdrawal > 0) {
-        const withdrawalTax = calculateFederalTax(annualWithdrawal, filingStatus) + (annualWithdrawal * stateRate);
-        const withdrawalTaxRate = ((withdrawalTax / annualWithdrawal) * 100).toFixed(2);
-        row = tbody.insertRow();
-        row.innerHTML = `
-            <td colspan="3" style="background: rgba(212, 169, 88, 0.1); padding-top: 1rem; border-top: 2px solid var(--brand-gold);">
-                <strong>Annual Withdrawal Tax Rate:</strong> ${withdrawalTaxRate}%
-                (${formatCurrency(withdrawalTax)} tax on ${formatCurrency(annualWithdrawal)} withdrawal, assuming this is your only income)
-            </td>
-        `;
-    }
 
     // Update summary
     const totalTax = capitalGainsTax + niitTax + stateTax;
@@ -599,6 +630,70 @@ function createComparisonChart(traditionalData, method453Data, startAge) {
     });
 }
 
+// Update chart with new rate of return from slider
+function updateChartWithNewRate(newRateOfReturn) {
+    if (!calculationParams.age || !calculationParams.growthPeriod) {
+        console.log('Cannot update chart - no calculation data available');
+        return;
+    }
+
+    console.log('Updating chart with new rate:', newRateOfReturn);
+
+    // Recalculate projections with new rate
+    traditionalProjections = generateTraditionalProjections(
+        calculationParams.age,
+        calculationParams.growthPeriod,
+        calculationParams.assetValue,
+        calculationParams.totalUpfrontTax,
+        newRateOfReturn,
+        calculationParams.annualWithdrawal,
+        calculationParams.filingStatus,
+        calculationParams.stateRate
+    );
+
+    method453Projections = generate453Projections(
+        calculationParams.age,
+        calculationParams.growthPeriod,
+        calculationParams.assetValue,
+        calculationParams.complianceFeeRate,
+        newRateOfReturn,
+        calculationParams.annualWithdrawal,
+        calculationParams.filingStatus,
+        calculationParams.stateRate
+    );
+
+    // Update the chart
+    createComparisonChart(traditionalProjections, method453Projections, calculationParams.age);
+}
+
+// Populate Lifestyle Withdrawal Tax Section
+function populateWithdrawalTaxSection(annualWithdrawal, filingStatus, stateRate, stateName) {
+    const section = document.getElementById('withdrawalTaxSection');
+
+    if (!section || annualWithdrawal <= 0) {
+        if (section) section.style.display = 'none';
+        return;
+    }
+
+    // Calculate taxes on withdrawal (assuming it's the only income)
+    const federalTax = calculateFederalTax(annualWithdrawal, filingStatus);
+    const stateTaxAmount = annualWithdrawal * stateRate;
+    const totalTax = federalTax + stateTaxAmount;
+    const effectiveRate = (totalTax / annualWithdrawal) * 100;
+    const netAmount = annualWithdrawal - totalTax;
+
+    // Update all fields
+    document.getElementById('withdrawal-amount').textContent = formatCurrency(annualWithdrawal);
+    document.getElementById('withdrawal-federal-tax').textContent = formatCurrency(federalTax);
+    document.getElementById('withdrawal-state-tax').textContent = formatCurrency(stateTaxAmount);
+    document.getElementById('withdrawal-total-tax').textContent = formatCurrency(totalTax);
+    document.getElementById('withdrawal-tax-rate').textContent = effectiveRate.toFixed(2) + '%';
+    document.getElementById('withdrawal-net-amount').textContent = formatCurrency(netAmount);
+
+    // Show the section
+    section.style.display = 'block';
+}
+
 // Generate AI-Powered Analysis
 function generateAIAnalysis(inputs, results) {
     const {
@@ -657,6 +752,81 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+});
+
+// Session Management Functions
+function saveSessionData(formData) {
+    try {
+        localStorage.setItem('taxCalculatorSession', JSON.stringify(formData));
+        console.log('Session data saved');
+    } catch (error) {
+        console.error('Error saving session:', error);
+    }
+}
+
+function loadSessionData() {
+    try {
+        const data = localStorage.getItem('taxCalculatorSession');
+        return data ? JSON.parse(data) : null;
+    } catch (error) {
+        console.error('Error loading session:', error);
+        return null;
+    }
+}
+
+function populateFormWithSessionData(data) {
+    if (!data) return;
+
+    // Populate all form fields
+    Object.keys(data).forEach(key => {
+        const field = document.getElementById(key);
+        if (field) {
+            if (field.type === 'radio') {
+                const radio = document.querySelector(`input[name="${key}"][value="${data[key]}"]`);
+                if (radio) radio.checked = true;
+            } else if (field.tagName === 'SELECT') {
+                field.value = data[key];
+            } else {
+                field.value = data[key];
+            }
+        }
+    });
+
+    console.log('Form populated with session data');
+}
+
+// Reload Session Button Handler
+document.addEventListener('DOMContentLoaded', function() {
+    const reloadBtn = document.getElementById('reloadSessionBtn');
+    if (reloadBtn) {
+        reloadBtn.addEventListener('click', function() {
+            const sessionData = loadSessionData();
+            if (sessionData) {
+                populateFormWithSessionData(sessionData);
+                alert('Last session data loaded successfully!');
+            } else {
+                alert('No previous session data found.');
+            }
+        });
+    }
+});
+
+// Chart Rate of Return Slider Handler
+document.addEventListener('DOMContentLoaded', function() {
+    const chartRateSlider = document.getElementById('chartRateSlider');
+    const chartRateValue = document.getElementById('chartRateValue');
+
+    if (chartRateSlider && chartRateValue) {
+        chartRateSlider.addEventListener('input', function() {
+            const newRate = parseFloat(this.value);
+            chartRateValue.textContent = newRate.toFixed(2) + '%';
+        });
+
+        chartRateSlider.addEventListener('change', function() {
+            const newRate = parseFloat(this.value) / 100; // Convert percentage to decimal
+            updateChartWithNewRate(newRate);
+        });
+    }
 });
 
 // Main form submission handler
@@ -762,6 +932,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 complianceFeeRate
             });
 
+            // Save session data to localStorage
+            const formData = {
+                assetValue: assetValue.toString(),
+                costBasis: costBasis.toString(),
+                shortTermGain: shortTermRadio.value,
+                age: age.toString(),
+                gender: gender,
+                filingStatus: filingStatus,
+                annualIncome: annualIncome.toString(),
+                state: stateSelect.value,
+                rateOfReturn: document.getElementById('rateOfReturn').value,
+                annualWithdrawal: annualWithdrawal.toString(),
+                growthPeriod: growthPeriod.toString(),
+                complianceFee: complianceFee.toString()
+            };
+            saveSessionData(formData);
+
             // Calculate capital gain
             const capitalGain = assetValue - costBasis;
             if (capitalGain < 0) {
@@ -795,6 +982,9 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Populating tax breakdown table...');
             populateTaxBreakdownTable(assetValue, costBasis, capitalGain, capitalGainsTax, niitTax, stateTax, stateRate, isShortTerm, filingStatus, stateName, annualWithdrawal);
 
+            // Populate withdrawal tax section
+            populateWithdrawalTaxSection(annualWithdrawal, filingStatus, stateRate, stateName);
+
             // Update compliance fee header
             document.getElementById('complianceFeeHeader').textContent = `(${complianceFee}%)`;
 
@@ -802,6 +992,26 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Generating projections...');
             traditionalProjections = generateTraditionalProjections(age, growthPeriod, assetValue, totalUpfrontTax, rateOfReturn, annualWithdrawal, filingStatus, stateRate);
             method453Projections = generate453Projections(age, growthPeriod, assetValue, complianceFeeRate, rateOfReturn, annualWithdrawal, filingStatus, stateRate);
+
+            // Store calculation parameters for slider
+            calculationParams = {
+                age: age,
+                growthPeriod: growthPeriod,
+                assetValue: assetValue,
+                totalUpfrontTax: totalUpfrontTax,
+                complianceFeeRate: complianceFeeRate,
+                annualWithdrawal: annualWithdrawal,
+                filingStatus: filingStatus,
+                stateRate: stateRate
+            };
+
+            // Initialize slider with current rate of return
+            const chartRateSlider = document.getElementById('chartRateSlider');
+            const chartRateValue = document.getElementById('chartRateValue');
+            if (chartRateSlider && chartRateValue) {
+                chartRateSlider.value = (rateOfReturn * 100).toFixed(2);
+                chartRateValue.textContent = (rateOfReturn * 100).toFixed(2) + '%';
+            }
 
             const traditionalFinalValue = traditionalProjections.length > 0 ? traditionalProjections[traditionalProjections.length - 1].netEnding : 0;
             const method453FinalValue = method453Projections.length > 0 ? method453Projections[method453Projections.length - 1].netEnding : 0;

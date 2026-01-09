@@ -178,6 +178,41 @@ body {
     margin-bottom: 2rem;
 }
 
+.reload-session-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.reload-session-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, rgba(212, 169, 88, 0.1) 0%, rgba(212, 169, 88, 0.05) 100%);
+    border: 2px solid var(--brand-gold);
+    border-radius: 10px;
+    color: var(--brand-gold);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.reload-session-btn:hover {
+    background: linear-gradient(135deg, rgba(212, 169, 88, 0.2) 0%, rgba(212, 169, 88, 0.1) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 169, 88, 0.3);
+}
+
+.reload-session-btn:active {
+    transform: translateY(0);
+}
+
+.reload-session-btn svg {
+    color: var(--brand-gold);
+}
+
 .section {
     margin-bottom: 2.5rem;
     padding-bottom: 2rem;
@@ -653,6 +688,90 @@ body {
     font-weight: 600;
 }
 
+/* Rate of Return Slider */
+.rate-slider-container {
+    background: linear-gradient(135deg, rgba(212, 169, 88, 0.05) 0%, rgba(212, 169, 88, 0.02) 100%);
+    border: 2px solid rgba(212, 169, 88, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.rate-slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.rate-slider-header label {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.rate-slider-value {
+    color: var(--brand-gold);
+    font-weight: 700;
+    font-size: 1.25rem;
+    background: rgba(212, 169, 88, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--brand-gold);
+}
+
+.rate-slider {
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, #e2e8f0 0%, var(--brand-gold) 50%, var(--brand-blue) 100%);
+    outline: none;
+    -webkit-appearance: none;
+    margin-bottom: 0.5rem;
+}
+
+.rate-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--brand-gold);
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(212, 169, 88, 0.4);
+    transition: all 0.2s ease;
+}
+
+.rate-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(212, 169, 88, 0.6);
+}
+
+.rate-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--brand-gold);
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(212, 169, 88, 0.4);
+    transition: all 0.2s ease;
+}
+
+.rate-slider::-moz-range-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(212, 169, 88, 0.6);
+}
+
+.rate-slider-labels {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+    padding: 0 0.25rem;
+}
+
 .chart-container {
     position: relative;
     height: 400px;
@@ -767,6 +886,105 @@ body {
 
 .growth-col {
     background: rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Lifestyle Withdrawal Tax Section */
+.withdrawal-tax-section {
+    background: var(--bg-card);
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.withdrawal-tax-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.withdrawal-icon {
+    color: var(--brand-blue);
+    flex-shrink: 0;
+}
+
+.withdrawal-tax-header h4 {
+    color: var(--brand-blue);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.withdrawal-description {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.withdrawal-breakdown {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.withdrawal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.withdrawal-item:last-child {
+    border-bottom: none;
+}
+
+.withdrawal-item.total-item {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--brand-blue);
+    background: rgba(43, 95, 143, 0.05);
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: 8px;
+}
+
+.withdrawal-item.rate-item {
+    background: rgba(212, 169, 88, 0.1);
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: 8px;
+}
+
+.withdrawal-item.net-item {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--accent-green);
+    background: rgba(16, 185, 129, 0.05);
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: 8px;
+}
+
+.withdrawal-label {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.withdrawal-value {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.withdrawal-value.green {
+    color: var(--accent-green);
 }
 
 /* AI Analysis Section */

@@ -30,6 +30,14 @@
         </header>
 
         <div class="calculator-card">
+            <div class="reload-session-container">
+                <button type="button" id="reloadSessionBtn" class="reload-session-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Reload Last Session
+                </button>
+            </div>
             <form id="taxCalculatorForm">
                 <div class="section">
                     <h3>Asset Information</h3>
@@ -260,6 +268,47 @@
                 </div>
             </div>
 
+            <!-- Lifestyle Withdrawal Tax Analysis -->
+            <div class="withdrawal-tax-section" id="withdrawalTaxSection" style="display: none;">
+                <div class="withdrawal-tax-header">
+                    <svg class="withdrawal-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h4>Lifestyle Withdrawal Tax Analysis</h4>
+                </div>
+                <div class="withdrawal-tax-content">
+                    <p class="withdrawal-description">
+                        Your annual lifestyle withdrawal will be subject to ordinary income taxes (assuming this is your only income source):
+                    </p>
+                    <div class="withdrawal-breakdown">
+                        <div class="withdrawal-item">
+                            <span class="withdrawal-label">Annual Withdrawal Amount:</span>
+                            <span class="withdrawal-value" id="withdrawal-amount">$0</span>
+                        </div>
+                        <div class="withdrawal-item">
+                            <span class="withdrawal-label">Federal Income Tax:</span>
+                            <span class="withdrawal-value" id="withdrawal-federal-tax">$0</span>
+                        </div>
+                        <div class="withdrawal-item">
+                            <span class="withdrawal-label">State Income Tax:</span>
+                            <span class="withdrawal-value" id="withdrawal-state-tax">$0</span>
+                        </div>
+                        <div class="withdrawal-item total-item">
+                            <span class="withdrawal-label"><strong>Total Tax on Withdrawal:</strong></span>
+                            <span class="withdrawal-value"><strong id="withdrawal-total-tax">$0</strong></span>
+                        </div>
+                        <div class="withdrawal-item rate-item">
+                            <span class="withdrawal-label">Effective Tax Rate:</span>
+                            <span class="withdrawal-value" id="withdrawal-tax-rate">0%</span>
+                        </div>
+                        <div class="withdrawal-item net-item">
+                            <span class="withdrawal-label"><strong>Net After-Tax Withdrawal:</strong></span>
+                            <span class="withdrawal-value green"><strong id="withdrawal-net-amount">$0</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="results-grid">
                 <div class="result-card summary-card">
                     <h4>Calculation Summary</h4>
@@ -328,6 +377,29 @@
 
             <div class="chart-section">
                 <h4>Visual Comparison: Traditional vs 453 Structure</h4>
+
+                <!-- Rate of Return Slider -->
+                <div class="rate-slider-container">
+                    <div class="rate-slider-header">
+                        <label for="chartRateSlider">Annual Expected Return:</label>
+                        <span class="rate-slider-value" id="chartRateValue">8.00%</span>
+                    </div>
+                    <input
+                        type="range"
+                        id="chartRateSlider"
+                        min="0"
+                        max="20"
+                        step="0.25"
+                        value="8.00"
+                        class="rate-slider"
+                    />
+                    <div class="rate-slider-labels">
+                        <span>0%</span>
+                        <span>10%</span>
+                        <span>20%</span>
+                    </div>
+                </div>
+
                 <div class="chart-container">
                     <canvas id="comparisonChart"></canvas>
                 </div>
