@@ -707,12 +707,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // PDF Generation Function
-async function generateClientReport() {
+function generateClientReport() {
+    console.log('PDF generation started');
+
     // Check if results are available
-    if (traditionalProjections.length === 0 || method453Projections.length === 0) {
+    if (!traditionalProjections || traditionalProjections.length === 0 || !method453Projections || method453Projections.length === 0) {
         alert('Please calculate tax savings first before generating a report.');
         return;
     }
+
+    console.log('Projections available:', {
+        traditional: traditionalProjections.length,
+        method453: method453Projections.length
+    });
 
     // Prompt for client name
     const clientName = prompt('Please enter the client name for the report:');
@@ -726,9 +733,36 @@ async function generateClientReport() {
     const fileName = `${clientName.trim().replace(/\s+/g, '_')}_${serialNumber}.pdf`;
 
     try {
+        // Check if jsPDF is available
+        if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+            throw new Error('jsPDF library not loaded. Please refresh the page and try again.');
+        }
+
+        console.log('jsPDF library found');
+
         // Initialize jsPDF
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
+        const doc = new jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        console.log('jsPDF initialized');
+
+        // Check if autoTable is available
+        if (typeof doc.autoTable !== 'function') {
+            throw new Error('jsPDF autoTable plugin not loaded. Please refresh the page and try again.');
+        }
+
+        console.log('autoTable plugin found');
+
+        // Check if formatCurrency is available
+        if (typeof formatCurrency !== 'function') {
+            throw new Error('formatCurrency function not available. Please refresh the page and try again.');
+        }
+
+        console.log('formatCurrency function available');
 
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
@@ -963,14 +997,24 @@ async function generateClientReport() {
         yPos += 6;
 
         // Traditional projections table
-        const tradProjectionData = traditionalProjections.slice(0, 20).map(row => [
-            row.age.toString(),
-            formatCurrency(row.assetBeginning),
-            formatCurrency(row.growth),
-            formatCurrency(row.lifestyleWithdrawal),
-            formatCurrency(row.tax),
-            formatCurrency(row.netEnding)
-        ]);
+        const maxRows = Math.min(20, traditionalProjections.length);
+        const tradProjectionData = traditionalProjections.slice(0, maxRows).map(row => {
+            try {
+                return [
+                    String(row.age || ''),
+                    formatCurrency(row.assetBeginning || 0),
+                    formatCurrency(row.growth || 0),
+                    formatCurrency(row.lifestyleWithdrawal || 0),
+                    formatCurrency(row.tax || 0),
+                    formatCurrency(row.netEnding || 0)
+                ];
+            } catch (error) {
+                console.error('Error formatting row:', row, error);
+                return ['Error', '$0', '$0', '$0', '$0', '$0'];
+            }
+        });
+
+        console.log('Traditional projection data prepared:', tradProjectionData.length, 'rows');
 
         doc.autoTable({
             startY: yPos,
@@ -1016,15 +1060,25 @@ async function generateClientReport() {
         yPos += 6;
 
         // 453 projections table
-        const method453ProjectionData = method453Projections.slice(0, 20).map(row => [
-            row.age.toString(),
-            formatCurrency(row.assetBeginning),
-            formatCurrency(row.growth),
-            formatCurrency(row.complianceFee || 0),
-            formatCurrency(row.lifestyleWithdrawal),
-            formatCurrency(row.tax),
-            formatCurrency(row.netEnding)
-        ]);
+        const max453Rows = Math.min(20, method453Projections.length);
+        const method453ProjectionData = method453Projections.slice(0, max453Rows).map(row => {
+            try {
+                return [
+                    String(row.age || ''),
+                    formatCurrency(row.assetBeginning || 0),
+                    formatCurrency(row.growth || 0),
+                    formatCurrency(row.complianceFee || 0),
+                    formatCurrency(row.lifestyleWithdrawal || 0),
+                    formatCurrency(row.tax || 0),
+                    formatCurrency(row.netEnding || 0)
+                ];
+            } catch (error) {
+                console.error('Error formatting 453 row:', row, error);
+                return ['Error', '$0', '$0', '$0', '$0', '$0', '$0'];
+            }
+        });
+
+        console.log('453 projection data prepared:', method453ProjectionData.length, 'rows');
 
         doc.autoTable({
             startY: yPos,
@@ -1118,7 +1172,26 @@ async function generateClientReport() {
 
     } catch (error) {
         console.error('Error generating PDF:', error);
-        alert('An error occurred while generating the PDF. Please try again.');
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack
+        });
+        alert(`An error occurred while generating the PDF:\n\n${error.message}\n\nPlease check the browser console for more details or try refreshing the page.`);
+    }
+}
+
+// Helper function to safely get text content from element
+function safeGetElementText(elementId, defaultValue = '$0') {
+    try {
+        const element = document.getElementById(elementId);
+        if (element && element.textContent) {
+            return element.textContent.trim();
+        }
+        console.warn(`Element not found or empty: ${elementId}`);
+        return defaultValue;
+    } catch (error) {
+        console.error(`Error getting element ${elementId}:`, error);
+        return defaultValue;
     }
 }
 
