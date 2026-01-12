@@ -26,18 +26,6 @@ let comparisonChart = null;
 let traditionalProjections = [];
 let method453Projections = [];
 
-// Global variables to store calculation parameters for slider
-let calculationParams = {
-    age: 0,
-    growthPeriod: 0,
-    assetValue: 0,
-    totalUpfrontTax: 0,
-    complianceFeeRate: 0,
-    annualWithdrawal: 0,
-    filingStatus: '',
-    stateRate: 0
-};
-
 // ===== UTILITY FUNCTIONS =====
 
 // Format number with commas
@@ -630,42 +618,6 @@ function createComparisonChart(traditionalData, method453Data, startAge) {
     });
 }
 
-// Update chart with new rate of return from slider
-function updateChartWithNewRate(newRateOfReturn) {
-    if (!calculationParams.age || !calculationParams.growthPeriod) {
-        console.log('Cannot update chart - no calculation data available');
-        return;
-    }
-
-    console.log('Updating chart with new rate:', newRateOfReturn);
-
-    // Recalculate projections with new rate
-    traditionalProjections = generateTraditionalProjections(
-        calculationParams.age,
-        calculationParams.growthPeriod,
-        calculationParams.assetValue,
-        calculationParams.totalUpfrontTax,
-        newRateOfReturn,
-        calculationParams.annualWithdrawal,
-        calculationParams.filingStatus,
-        calculationParams.stateRate
-    );
-
-    method453Projections = generate453Projections(
-        calculationParams.age,
-        calculationParams.growthPeriod,
-        calculationParams.assetValue,
-        calculationParams.complianceFeeRate,
-        newRateOfReturn,
-        calculationParams.annualWithdrawal,
-        calculationParams.filingStatus,
-        calculationParams.stateRate
-    );
-
-    // Update the chart
-    createComparisonChart(traditionalProjections, method453Projections, calculationParams.age);
-}
-
 // Populate Lifestyle Withdrawal Tax Section
 function populateWithdrawalTaxSection(annualWithdrawal, filingStatus, stateRate, stateName) {
     const section = document.getElementById('withdrawalTaxSection');
@@ -754,6 +706,422 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// PDF Generation Function
+async function generateClientReport() {
+    // Check if results are available
+    if (traditionalProjections.length === 0 || method453Projections.length === 0) {
+        alert('Please calculate tax savings first before generating a report.');
+        return;
+    }
+
+    // Prompt for client name
+    const clientName = prompt('Please enter the client name for the report:');
+    if (!clientName || clientName.trim() === '') {
+        alert('Client name is required to generate the report.');
+        return;
+    }
+
+    // Generate serial number (timestamp-based)
+    const serialNumber = Date.now().toString().slice(-6);
+    const fileName = `${clientName.trim().replace(/\s+/g, '_')}_${serialNumber}.pdf`;
+
+    try {
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 15;
+        let yPos = 20;
+
+        // Brand colors
+        const brandBlue = [43, 95, 143];
+        const brandGold = [212, 169, 88];
+        const textPrimary = [26, 26, 26];
+        const textSecondary = [107, 114, 128];
+
+        // Helper function to check page break
+        function checkPageBreak(neededSpace) {
+            if (yPos + neededSpace > pageHeight - margin) {
+                doc.addPage();
+                yPos = margin;
+                return true;
+            }
+            return false;
+        }
+
+        // Header with logo area and client info
+        doc.setFillColor(...brandBlue);
+        doc.rect(0, 0, pageWidth, 45, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('DST TRUST', margin, 20);
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text('453 Tax Savings Analysis Report', margin, 28);
+
+        doc.setFontSize(10);
+        doc.text(`Report Date: ${new Date().toLocaleDateString()}`, margin, 36);
+        doc.text(`Report #: ${serialNumber}`, pageWidth - margin - 40, 36);
+
+        // Client Name Section
+        yPos = 55;
+        doc.setFillColor(...brandGold);
+        doc.rect(margin, yPos - 5, pageWidth - 2 * margin, 15, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Client: ${clientName.toUpperCase()}`, margin + 5, yPos + 5);
+
+        yPos += 20;
+
+        // Get all the calculated values from the DOM
+        const assetValue = parseFloat(document.getElementById('result-asset-value').textContent.replace(/[$,]/g, '')) || 0;
+        const costBasis = parseFloat(document.getElementById('result-cost-basis').textContent.replace(/[$,]/g, '')) || 0;
+        const capitalGain = parseFloat(document.getElementById('result-capital-gain').textContent.replace(/[$,]/g, '')) || 0;
+        const totalTax = parseFloat(document.getElementById('result-total-tax').textContent.replace(/[$,]/g, '')) || 0;
+        const afterTaxAmount = parseFloat(document.getElementById('result-trad-after-tax').textContent.replace(/[$,]/g, '')) || 0;
+
+        const trad453TotalTax = parseFloat(document.getElementById('result-453-total-tax').textContent.replace(/[$,]/g, '')) || 0;
+        const taxSavings = parseFloat(document.getElementById('result-tax-savings').textContent.replace(/[$,]/g, '')) || 0;
+        const traditionalFinalValue = parseFloat(document.getElementById('result-trad-final').textContent.replace(/[$,]/g, '')) || 0;
+        const method453FinalValue = parseFloat(document.getElementById('result-453-final').textContent.replace(/[$,]/g, '')) || 0;
+        const finalAdvantage = parseFloat(document.getElementById('result-final-advantage').textContent.replace(/[$,]/g, '')) || 0;
+
+        // Executive Summary Section
+        doc.setTextColor(...brandBlue);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('EXECUTIVE SUMMARY', margin, yPos);
+        yPos += 8;
+
+        doc.setDrawColor(...brandBlue);
+        doc.setLineWidth(0.5);
+        doc.line(margin, yPos, pageWidth - margin, yPos);
+        yPos += 6;
+
+        // Summary table
+        const summaryData = [
+            ['Asset Value', formatCurrency(assetValue)],
+            ['Cost Basis', formatCurrency(costBasis)],
+            ['Capital Gain', formatCurrency(capitalGain)],
+            ['Traditional Sale - Total Tax', formatCurrency(totalTax)],
+            ['Traditional Sale - After-Tax Amount', formatCurrency(afterTaxAmount)],
+            ['DST Trust 453 - Total Lifetime Tax', formatCurrency(trad453TotalTax)],
+            ['Tax Savings with 453 Structure', formatCurrency(taxSavings)],
+            ['Traditional - Final Value', formatCurrency(traditionalFinalValue)],
+            ['DST Trust 453 - Final Value', formatCurrency(method453FinalValue)],
+            ['Total Financial Advantage', formatCurrency(finalAdvantage)]
+        ];
+
+        doc.autoTable({
+            startY: yPos,
+            head: [['Metric', 'Value']],
+            body: summaryData,
+            theme: 'striped',
+            headStyles: {
+                fillColor: brandBlue,
+                textColor: 255,
+                fontSize: 10,
+                fontStyle: 'bold'
+            },
+            bodyStyles: {
+                fontSize: 9,
+                textColor: textPrimary
+            },
+            alternateRowStyles: {
+                fillColor: [248, 249, 250]
+            },
+            columnStyles: {
+                0: { cellWidth: 90, fontStyle: 'bold' },
+                1: { cellWidth: 'auto', halign: 'right' }
+            },
+            margin: { left: margin, right: margin }
+        });
+
+        yPos = doc.lastAutoTable.finalY + 10;
+
+        // Tax Breakdown Section
+        checkPageBreak(40);
+        doc.setTextColor(...brandBlue);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('TRADITIONAL SALE - TAX BREAKDOWN', margin, yPos);
+        yPos += 8;
+
+        doc.setDrawColor(...brandBlue);
+        doc.line(margin, yPos, pageWidth - margin, yPos);
+        yPos += 6;
+
+        // Get tax breakdown from table
+        const taxBreakdownRows = [];
+        const taxTableBody = document.querySelector('#taxBreakdownTable tbody');
+        if (taxTableBody) {
+            const rows = taxTableBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                if (row.cells.length >= 3 && !row.querySelector('[colspan="3"]')) {
+                    const category = row.cells[0].textContent.trim();
+                    const rate = row.cells[1].textContent.trim();
+                    const amount = row.cells[2].textContent.trim();
+                    if (category && !category.includes('Progressive Calculation')) {
+                        taxBreakdownRows.push([category, rate, amount]);
+                    }
+                }
+            });
+        }
+
+        if (taxBreakdownRows.length > 0) {
+            doc.autoTable({
+                startY: yPos,
+                head: [['Tax Category', 'Rate/Details', 'Amount']],
+                body: taxBreakdownRows,
+                theme: 'striped',
+                headStyles: {
+                    fillColor: brandBlue,
+                    textColor: 255,
+                    fontSize: 10,
+                    fontStyle: 'bold'
+                },
+                bodyStyles: {
+                    fontSize: 9,
+                    textColor: textPrimary
+                },
+                alternateRowStyles: {
+                    fillColor: [248, 249, 250]
+                },
+                columnStyles: {
+                    0: { cellWidth: 70 },
+                    1: { cellWidth: 50 },
+                    2: { cellWidth: 'auto', halign: 'right' }
+                },
+                margin: { left: margin, right: margin }
+            });
+            yPos = doc.lastAutoTable.finalY + 10;
+        }
+
+        // Withdrawal Tax Analysis
+        const withdrawalSection = document.getElementById('withdrawalTaxSection');
+        if (withdrawalSection && withdrawalSection.style.display !== 'none') {
+            checkPageBreak(40);
+
+            doc.setTextColor(...brandBlue);
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('LIFESTYLE WITHDRAWAL TAX ANALYSIS', margin, yPos);
+            yPos += 8;
+
+            doc.setDrawColor(...brandBlue);
+            doc.line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 6;
+
+            const withdrawalData = [
+                ['Annual Withdrawal Amount', document.getElementById('withdrawal-amount')?.textContent || '$0'],
+                ['Federal Income Tax', document.getElementById('withdrawal-federal-tax')?.textContent || '$0'],
+                ['State Income Tax', document.getElementById('withdrawal-state-tax')?.textContent || '$0'],
+                ['Total Tax on Withdrawal', document.getElementById('withdrawal-total-tax')?.textContent || '$0'],
+                ['Effective Tax Rate', document.getElementById('withdrawal-tax-rate')?.textContent || '0%'],
+                ['Net After-Tax Withdrawal', document.getElementById('withdrawal-net-amount')?.textContent || '$0']
+            ];
+
+            doc.autoTable({
+                startY: yPos,
+                body: withdrawalData,
+                theme: 'plain',
+                bodyStyles: {
+                    fontSize: 9,
+                    textColor: textPrimary
+                },
+                columnStyles: {
+                    0: { cellWidth: 90, fontStyle: 'bold' },
+                    1: { cellWidth: 'auto', halign: 'right', fontStyle: 'bold' }
+                },
+                margin: { left: margin, right: margin },
+                didParseCell: function(data) {
+                    if (data.row.index === 3 || data.row.index === 5) {
+                        data.cell.styles.fillColor = [248, 249, 250];
+                    }
+                }
+            });
+            yPos = doc.lastAutoTable.finalY + 10;
+        }
+
+        // Year-by-Year Projection - Traditional Scenario
+        checkPageBreak(60);
+        doc.setTextColor(...brandBlue);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('YEAR-BY-YEAR PROJECTION - TRADITIONAL SCENARIO', margin, yPos);
+        yPos += 8;
+
+        doc.setDrawColor(...brandBlue);
+        doc.line(margin, yPos, pageWidth - margin, yPos);
+        yPos += 6;
+
+        // Traditional projections table
+        const tradProjectionData = traditionalProjections.slice(0, 20).map(row => [
+            row.age.toString(),
+            formatCurrency(row.assetBeginning),
+            formatCurrency(row.growth),
+            formatCurrency(row.lifestyleWithdrawal),
+            formatCurrency(row.tax),
+            formatCurrency(row.netEnding)
+        ]);
+
+        doc.autoTable({
+            startY: yPos,
+            head: [['Age', 'Asset (Beg)', 'Growth', 'Withdrawal', 'Tax', 'Net Ending']],
+            body: tradProjectionData,
+            theme: 'striped',
+            headStyles: {
+                fillColor: [196, 77, 77],
+                textColor: 255,
+                fontSize: 8,
+                fontStyle: 'bold'
+            },
+            bodyStyles: {
+                fontSize: 7,
+                textColor: textPrimary
+            },
+            alternateRowStyles: {
+                fillColor: [248, 249, 250]
+            },
+            columnStyles: {
+                0: { cellWidth: 18, halign: 'center' },
+                1: { cellWidth: 30, halign: 'right', fontSize: 7 },
+                2: { cellWidth: 25, halign: 'right', fontSize: 7 },
+                3: { cellWidth: 30, halign: 'right', fontSize: 7 },
+                4: { cellWidth: 25, halign: 'right', fontSize: 7 },
+                5: { cellWidth: 32, halign: 'right', fontSize: 7, fontStyle: 'bold' }
+            },
+            margin: { left: margin, right: margin }
+        });
+
+        yPos = doc.lastAutoTable.finalY + 10;
+
+        // Year-by-Year Projection - DST Trust 453 Scenario
+        checkPageBreak(60);
+        doc.setTextColor(...brandBlue);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('YEAR-BY-YEAR PROJECTION - DST TRUST 453 SCENARIO', margin, yPos);
+        yPos += 8;
+
+        doc.setDrawColor(...brandBlue);
+        doc.line(margin, yPos, pageWidth - margin, yPos);
+        yPos += 6;
+
+        // 453 projections table
+        const method453ProjectionData = method453Projections.slice(0, 20).map(row => [
+            row.age.toString(),
+            formatCurrency(row.assetBeginning),
+            formatCurrency(row.growth),
+            formatCurrency(row.complianceFee || 0),
+            formatCurrency(row.lifestyleWithdrawal),
+            formatCurrency(row.tax),
+            formatCurrency(row.netEnding)
+        ]);
+
+        doc.autoTable({
+            startY: yPos,
+            head: [['Age', 'Asset (Beg)', 'Growth', 'Compliance', 'Withdrawal', 'Tax', 'Net Ending']],
+            body: method453ProjectionData,
+            theme: 'striped',
+            headStyles: {
+                fillColor: brandGold,
+                textColor: 255,
+                fontSize: 8,
+                fontStyle: 'bold'
+            },
+            bodyStyles: {
+                fontSize: 7,
+                textColor: textPrimary
+            },
+            alternateRowStyles: {
+                fillColor: [248, 249, 250]
+            },
+            columnStyles: {
+                0: { cellWidth: 15, halign: 'center' },
+                1: { cellWidth: 27, halign: 'right', fontSize: 7 },
+                2: { cellWidth: 22, halign: 'right', fontSize: 7 },
+                3: { cellWidth: 22, halign: 'right', fontSize: 7 },
+                4: { cellWidth: 27, halign: 'right', fontSize: 7 },
+                5: { cellWidth: 22, halign: 'right', fontSize: 7 },
+                6: { cellWidth: 30, halign: 'right', fontSize: 7, fontStyle: 'bold' }
+            },
+            margin: { left: margin, right: margin }
+        });
+
+        yPos = doc.lastAutoTable.finalY + 10;
+
+        // AI Analysis Section
+        const aiAnalysisText = document.querySelector('.ai-analysis-text')?.textContent;
+        if (aiAnalysisText && aiAnalysisText.trim()) {
+            checkPageBreak(40);
+
+            doc.setTextColor(...brandBlue);
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('AI-POWERED WEALTH STRATEGY ANALYSIS', margin, yPos);
+            yPos += 8;
+
+            doc.setDrawColor(...brandGold);
+            doc.setLineWidth(1);
+            doc.line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 8;
+
+            doc.setTextColor(...textPrimary);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+
+            const splitText = doc.splitTextToSize(aiAnalysisText.trim(), pageWidth - 2 * margin);
+            splitText.forEach(line => {
+                checkPageBreak(10);
+                doc.text(line, margin, yPos);
+                yPos += 5;
+            });
+        }
+
+        // Footer on last page
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(...textSecondary);
+            doc.setFont('helvetica', 'normal');
+            doc.text(
+                'This report is for informational purposes only. Consult with a qualified tax professional.',
+                pageWidth / 2,
+                pageHeight - 10,
+                { align: 'center' }
+            );
+            doc.text(
+                `Page ${i} of ${pageCount}`,
+                pageWidth - margin,
+                pageHeight - 10,
+                { align: 'right' }
+            );
+            doc.text(
+                '© 2025 DST Trust. All rights reserved.',
+                margin,
+                pageHeight - 10
+            );
+        }
+
+        // Save the PDF
+        doc.save(fileName);
+        alert(`Report generated successfully!\nFile name: ${fileName}`);
+
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('An error occurred while generating the PDF. Please try again.');
+    }
+}
+
 // Session Management Functions
 function saveSessionData(formData) {
     try {
@@ -811,20 +1179,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Chart Rate of Return Slider Handler
+// Download Report Button Handler
 document.addEventListener('DOMContentLoaded', function() {
-    const chartRateSlider = document.getElementById('chartRateSlider');
-    const chartRateValue = document.getElementById('chartRateValue');
-
-    if (chartRateSlider && chartRateValue) {
-        chartRateSlider.addEventListener('input', function() {
-            const newRate = parseFloat(this.value);
-            chartRateValue.textContent = newRate.toFixed(2) + '%';
-        });
-
-        chartRateSlider.addEventListener('change', function() {
-            const newRate = parseFloat(this.value) / 100; // Convert percentage to decimal
-            updateChartWithNewRate(newRate);
+    const downloadBtn = document.getElementById('downloadReportBtn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', function() {
+            generateClientReport();
         });
     }
 });
@@ -992,26 +1352,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Generating projections...');
             traditionalProjections = generateTraditionalProjections(age, growthPeriod, assetValue, totalUpfrontTax, rateOfReturn, annualWithdrawal, filingStatus, stateRate);
             method453Projections = generate453Projections(age, growthPeriod, assetValue, complianceFeeRate, rateOfReturn, annualWithdrawal, filingStatus, stateRate);
-
-            // Store calculation parameters for slider
-            calculationParams = {
-                age: age,
-                growthPeriod: growthPeriod,
-                assetValue: assetValue,
-                totalUpfrontTax: totalUpfrontTax,
-                complianceFeeRate: complianceFeeRate,
-                annualWithdrawal: annualWithdrawal,
-                filingStatus: filingStatus,
-                stateRate: stateRate
-            };
-
-            // Initialize slider with current rate of return
-            const chartRateSlider = document.getElementById('chartRateSlider');
-            const chartRateValue = document.getElementById('chartRateValue');
-            if (chartRateSlider && chartRateValue) {
-                chartRateSlider.value = (rateOfReturn * 100).toFixed(2);
-                chartRateValue.textContent = (rateOfReturn * 100).toFixed(2) + '%';
-            }
 
             const traditionalFinalValue = traditionalProjections.length > 0 ? traditionalProjections[traditionalProjections.length - 1].netEnding : 0;
             const method453FinalValue = method453Projections.length > 0 ? method453Projections[method453Projections.length - 1].netEnding : 0;
