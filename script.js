@@ -706,9 +706,36 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Helper function to safely get element text content
+function safeGetText(elementId, defaultValue = '$0') {
+    try {
+        const element = document.getElementById(elementId);
+        if (element && element.textContent) {
+            return element.textContent.trim();
+        }
+        console.warn(`Element not found or empty: ${elementId}, using default: ${defaultValue}`);
+        return defaultValue;
+    } catch (error) {
+        console.error(`Error getting element ${elementId}:`, error);
+        return defaultValue;
+    }
+}
+
+// Helper function to parse currency from text
+function parseCurrencyText(text) {
+    try {
+        const cleaned = text.replace(/[$,]/g, '');
+        const value = parseFloat(cleaned);
+        return isNaN(value) ? 0 : value;
+    } catch (error) {
+        console.error('Error parsing currency:', text, error);
+        return 0;
+    }
+}
+
 // PDF Generation Function
-function generateClientReport() {
-    console.log('PDF generation started');
+function generateClientReport(firstName, lastName) {
+    console.log('PDF generation started for:', firstName, lastName);
 
     // Check if results are available
     if (!traditionalProjections || traditionalProjections.length === 0 || !method453Projections || method453Projections.length === 0) {
@@ -721,16 +748,12 @@ function generateClientReport() {
         method453: method453Projections.length
     });
 
-    // Prompt for client name
-    const clientName = prompt('Please enter the client name for the report:');
-    if (!clientName || clientName.trim() === '') {
-        alert('Client name is required to generate the report.');
-        return;
-    }
+    // Generate client name
+    const clientName = `${firstName} ${lastName}`;
 
     // Generate serial number (timestamp-based)
     const serialNumber = Date.now().toString().slice(-6);
-    const fileName = `${clientName.trim().replace(/\s+/g, '_')}_${serialNumber}.pdf`;
+    const fileName = `${firstName}_${lastName}_${serialNumber}.pdf`.replace(/\s+/g, '_');
 
     try {
         // Check if jsPDF is available
@@ -814,18 +837,21 @@ function generateClientReport() {
 
         yPos += 20;
 
-        // Get all the calculated values from the DOM
-        const assetValue = parseFloat(document.getElementById('result-asset-value').textContent.replace(/[$,]/g, '')) || 0;
-        const costBasis = parseFloat(document.getElementById('result-cost-basis').textContent.replace(/[$,]/g, '')) || 0;
-        const capitalGain = parseFloat(document.getElementById('result-capital-gain').textContent.replace(/[$,]/g, '')) || 0;
-        const totalTax = parseFloat(document.getElementById('result-total-tax').textContent.replace(/[$,]/g, '')) || 0;
-        const afterTaxAmount = parseFloat(document.getElementById('result-trad-after-tax').textContent.replace(/[$,]/g, '')) || 0;
+        // Get all the calculated values from the DOM using safe helper
+        console.log('Extracting data from DOM...');
+        const assetValue = parseCurrencyText(safeGetText('result-asset-value', '$0'));
+        const costBasis = parseCurrencyText(safeGetText('result-cost-basis', '$0'));
+        const capitalGain = parseCurrencyText(safeGetText('result-capital-gain', '$0'));
+        const totalTax = parseCurrencyText(safeGetText('result-total-tax', '$0'));
+        const afterTaxAmount = parseCurrencyText(safeGetText('result-trad-after-tax', '$0'));
 
-        const trad453TotalTax = parseFloat(document.getElementById('result-453-total-tax').textContent.replace(/[$,]/g, '')) || 0;
-        const taxSavings = parseFloat(document.getElementById('result-tax-savings').textContent.replace(/[$,]/g, '')) || 0;
-        const traditionalFinalValue = parseFloat(document.getElementById('result-trad-final').textContent.replace(/[$,]/g, '')) || 0;
-        const method453FinalValue = parseFloat(document.getElementById('result-453-final').textContent.replace(/[$,]/g, '')) || 0;
-        const finalAdvantage = parseFloat(document.getElementById('result-final-advantage').textContent.replace(/[$,]/g, '')) || 0;
+        const trad453TotalTax = parseCurrencyText(safeGetText('result-453-total-tax', '$0'));
+        const taxSavings = parseCurrencyText(safeGetText('result-tax-savings', '$0'));
+        const traditionalFinalValue = parseCurrencyText(safeGetText('result-trad-final', '$0'));
+        const method453FinalValue = parseCurrencyText(safeGetText('result-453-final', '$0'));
+        const finalAdvantage = parseCurrencyText(safeGetText('result-final-advantage', '$0'));
+
+        console.log('Data extracted:', { assetValue, costBasis, capitalGain, totalTax });
 
         // Executive Summary Section
         doc.setTextColor(...brandBlue);
@@ -954,12 +980,12 @@ function generateClientReport() {
             yPos += 6;
 
             const withdrawalData = [
-                ['Annual Withdrawal Amount', document.getElementById('withdrawal-amount')?.textContent || '$0'],
-                ['Federal Income Tax', document.getElementById('withdrawal-federal-tax')?.textContent || '$0'],
-                ['State Income Tax', document.getElementById('withdrawal-state-tax')?.textContent || '$0'],
-                ['Total Tax on Withdrawal', document.getElementById('withdrawal-total-tax')?.textContent || '$0'],
-                ['Effective Tax Rate', document.getElementById('withdrawal-tax-rate')?.textContent || '0%'],
-                ['Net After-Tax Withdrawal', document.getElementById('withdrawal-net-amount')?.textContent || '$0']
+                ['Annual Withdrawal Amount', safeGetText('withdrawal-amount', '$0')],
+                ['Federal Income Tax', safeGetText('withdrawal-federal-tax', '$0')],
+                ['State Income Tax', safeGetText('withdrawal-state-tax', '$0')],
+                ['Total Tax on Withdrawal', safeGetText('withdrawal-total-tax', '$0')],
+                ['Effective Tax Rate', safeGetText('withdrawal-tax-rate', '0%')],
+                ['Net After-Tax Withdrawal', safeGetText('withdrawal-net-amount', '$0')]
             ];
 
             doc.autoTable({
@@ -1180,21 +1206,6 @@ function generateClientReport() {
     }
 }
 
-// Helper function to safely get text content from element
-function safeGetElementText(elementId, defaultValue = '$0') {
-    try {
-        const element = document.getElementById(elementId);
-        if (element && element.textContent) {
-            return element.textContent.trim();
-        }
-        console.warn(`Element not found or empty: ${elementId}`);
-        return defaultValue;
-    } catch (error) {
-        console.error(`Error getting element ${elementId}:`, error);
-        return defaultValue;
-    }
-}
-
 // Session Management Functions
 function saveSessionData(formData) {
     try {
@@ -1252,12 +1263,70 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Download Report Button Handler
+// Download Report Button Handler and Modal
 document.addEventListener('DOMContentLoaded', function() {
     const downloadBtn = document.getElementById('downloadReportBtn');
-    if (downloadBtn) {
+    const modal = document.getElementById('clientNameModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const clientNameForm = document.getElementById('clientNameForm');
+    const firstNameInput = document.getElementById('clientFirstName');
+    const lastNameInput = document.getElementById('clientLastName');
+
+    // Open modal when download button is clicked
+    if (downloadBtn && modal) {
         downloadBtn.addEventListener('click', function() {
-            generateClientReport();
+            // Check if results are available
+            if (!traditionalProjections || traditionalProjections.length === 0 || !method453Projections || method453Projections.length === 0) {
+                alert('Please calculate tax savings first before generating a report.');
+                return;
+            }
+
+            modal.classList.add('show');
+            firstNameInput.value = '';
+            lastNameInput.value = '';
+            firstNameInput.focus();
+        });
+    }
+
+    // Close modal handlers
+    function closeModal() {
+        if (modal) {
+            modal.classList.remove('show');
+        }
+    }
+
+    if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', closeModal);
+    }
+
+    if (modalCancelBtn) {
+        modalCancelBtn.addEventListener('click', closeModal);
+    }
+
+    // Close modal when clicking outside
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+
+    // Handle form submission
+    if (clientNameForm) {
+        clientNameForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const firstName = firstNameInput.value.trim();
+            const lastName = lastNameInput.value.trim();
+
+            if (firstName && lastName) {
+                closeModal();
+                generateClientReport(firstName, lastName);
+            } else {
+                alert('Please enter both first and last name.');
+            }
         });
     }
 });
@@ -1366,9 +1435,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             // Save session data to localStorage
+            const assetTypeField = document.getElementById('assetType');
             const formData = {
                 assetValue: assetValue.toString(),
                 costBasis: costBasis.toString(),
+                assetType: assetTypeField ? assetTypeField.value : '',
                 shortTermGain: shortTermRadio.value,
                 age: age.toString(),
                 gender: gender,

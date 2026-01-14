@@ -49,6 +49,17 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="assetType">Asset Type</label>
+                        <select id="assetType" name="assetType" required>
+                            <option value="">Select asset type</option>
+                            <option value="business">Business / Traditional Asset</option>
+                            <option value="realestate">Real Estate</option>
+                            <option value="collectible">Collectible</option>
+                        </select>
+                        <small class="help-text">Select the type of asset being sold</small>
+                    </div>
+
+                    <div class="form-group">
                         <label for="shortTermGain">Was this asset purchased within the last year?</label>
                         <div class="radio-group">
                             <label class="radio-label">
@@ -429,6 +440,38 @@
                     </svg>
                     Download Client Report
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Name Modal -->
+    <div id="clientNameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Client Information</h2>
+                <button type="button" class="modal-close" id="modalCloseBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">Please enter the client's information for the report:</p>
+                <form id="clientNameForm">
+                    <div class="modal-form-group">
+                        <label for="clientFirstName">First Name</label>
+                        <input type="text" id="clientFirstName" name="clientFirstName" required placeholder="Enter first name">
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="clientLastName">Last Name</label>
+                        <input type="text" id="clientLastName" name="clientLastName" required placeholder="Enter last name">
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="modal-btn modal-btn-cancel" id="modalCancelBtn">Cancel</button>
+                        <button type="submit" class="modal-btn modal-btn-submit">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Generate Report
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
