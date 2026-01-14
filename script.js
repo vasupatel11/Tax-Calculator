@@ -362,15 +362,15 @@ function generate453Projections(startAge, yearsRemaining, assetValue, compliance
     const projections = [];
     const inflationRate = 0.05; // 5% annual inflation
 
-    // Year 1: Asset sale year - only pay compliance fee, no growth yet, no withdrawals, no taxes
-    const year1ComplianceFee = assetValue * complianceFeeRate;
-    const year1NetEnding = assetValue - year1ComplianceFee;
+    // Year 1: Asset sale year - no compliance fee shown, no growth yet, no withdrawals, no taxes
+    // Net proceeds equal to full asset value (compliance fee not deducted in Year 1)
+    const year1NetEnding = assetValue;
 
     projections.push({
         age: startAge,
         assetBeginning: assetValue,
         growth: 0,
-        complianceFee: year1ComplianceFee,
+        complianceFee: 0, // No compliance fee in Year 1
         lifestyleWithdrawal: 0,
         tax: 0,
         netEnding: year1NetEnding
@@ -1508,7 +1508,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Get Year 1 net proceeds for both scenarios
             const traditionalYear1NetProceeds = afterTaxAmount;
-            const method453Year1NetProceeds = method453Projections[0].netEnding;
+            // For 453 structure, Year 1 Net Proceeds shows full asset value (no compliance fee deducted)
+            const method453Year1NetProceeds = assetValue;
 
             console.log('Projection results:', {
                 traditionalFinalValue,
